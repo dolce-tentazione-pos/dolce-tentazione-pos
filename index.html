@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#4a2d35">
+<title>DolceTentazione | Pedidos de viernes</title>
+<style>
+:root{
+  --brown:#432b33; --pink:#d86f92; --pink2:#ef9bb3; --cream:#fffaf7;
+  --mauve:#8b3b68; --purple:#9b62b6; --green:#8ab45c; --text:#35272c;
+  --muted:#786d71; --line:#eadde0; --white:#fff;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#f8f1ee;color:var(--text);font-family:Arial,sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+header{
+  position:sticky;top:0;z-index:30;background:var(--brown);color:white;
+  padding:18px 18px 16px;text-align:center;box-shadow:0 3px 14px #0002
+}
+.brand{font-family:Georgia,serif;font-size:38px;font-weight:700;letter-spacing:-1px}
+.brand span{color:#f39ab5}
+.tagline{font-size:18px;margin-top:6px}
+.header-row{max-width:1100px;margin:auto;position:relative}
+.cart-top{
+  position:absolute;right:0;top:0;background:white;color:var(--brown);border:1px solid #eadfe1;
+  border-radius:15px;padding:10px 15px;font-weight:700;box-shadow:0 4px 12px #0001
+}
+.cart-top b{display:block;color:var(--mauve);font-size:17px}
+main{max-width:1100px;margin:auto;padding:25px 18px 100px}
+.hero{text-align:center;padding:12px 0 22px}
+.hero h1{font-family:Georgia,serif;font-size:29px;margin:5px 0 8px}
+.hero p{color:var(--muted);margin:0}
+.categories{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin:18px 0 30px
+}
+.cat{
+  background:white;border:1px solid var(--line);border-radius:18px;overflow:hidden;
+  box-shadow:0 5px 18px #5a33420b;transition:.2s
+}
+.cat:hover{transform:translateY(-3px)}
+.cat{cursor:pointer}.cat button{pointer-events:none}
+.cat img{width:100%;height:150px;object-fit:cover;display:block}
+.cat-body{padding:13px;text-align:center}
+.cat h3{font-family:Georgia,serif;margin:0 0 6px;font-size:20px}
+.cat p{margin:0 0 13px;color:var(--muted);font-size:14px;line-height:1.35}
+.cat button{border:0;border-radius:9px;padding:9px 16px;background:var(--pink);color:white;font-weight:700}
+.info{
+  display:grid;grid-template-columns:repeat(4,1fr);background:white;border:1px solid var(--line);
+  border-radius:15px;margin:10px 0 30px;padding:15px 8px
+}
+.info div{text-align:center;padding:5px 12px;border-right:1px solid var(--line)}
+.info div:last-child{border-right:0}
+.info strong{display:block;color:#c64d72;margin-bottom:5px}
+#homeView{display:block}
+.section{display:none}
+.section.active{display:block}
+body.category-open #homeView{display:none}
+body.category-open .section.active{display:block}
+.section-screen{max-width:980px;margin:0 auto}
+.section-title{
+  font-family:Georgia,serif;font-size:30px;margin:10px 0 18px;display:flex;align-items:center;gap:8px
+}
+.products{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.product{
+  background:white;border:1px solid var(--line);border-radius:15px;padding:11px;
+  display:grid;grid-template-columns:105px 1fr;gap:12px;min-height:145px
+}
+.product{background:#fff;border:1px solid #eadfe3;border-radius:16px;padding:10px;display:grid;grid-template-columns:88px 1fr;gap:10px;align-items:center;box-shadow:0 3px 12px rgba(70,35,45,.06)}
+.product img{width:88px;height:88px;object-fit:cover;border-radius:11px}
+.product .add{border:0;border-radius:9px;padding:8px 12px;background:var(--pink);color:#fff;font-weight:700;cursor:pointer}
+.product .flavor{width:100%;padding:8px;border:1px solid #dfcfd6;border-radius:9px;background:#fff;margin:5px 0}
+.back{border:0;background:transparent;color:var(--brown);font-weight:700;font-size:15px;padding:8px 0;cursor:pointer}
+.category-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.category-head .mini-cart{border:0;border-radius:12px;background:#fff;border:1px solid #eadfe3;padding:8px 12px;font-weight:700;color:var(--brown);cursor:pointer}
+.product h3{margin:3px 0 4px;font-size:18px}
+.product p{margin:0 0 7px;color:var(--muted);font-size:13px;line-height:1.3}
+.price{font-weight:800;color:var(--mauve);font-size:19px}
+.product-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
+.add{border:0;background:var(--pink);color:#fff;border-radius:8px;padding:8px 12px;font-weight:700}
+.flavor{
+  width:100%;margin:6px 0;border:1px solid #dfd2d5;border-radius:8px;padding:8px;background:#fff
+}
+.back{background:none;border:0;color:var(--mauve);font-weight:700;margin-bottom:7px;padding:0}
+.empty{text-align:center;color:var(--muted);padding:30px}
+.cart-bar{
+  position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:40;
+  width:min(760px,calc(100% - 24px));background:var(--mauve);color:white;border-radius:18px;
+  padding:12px 15px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 8px 25px #0003
+}
+.cart-bar button{background:white;color:var(--mauve);border:0;border-radius:11px;padding:12px 20px;font-weight:800}
+.modal{
+  display:none;position:fixed;inset:0;background:#0008;z-index:60;align-items:flex-end;justify-content:center
+}
+.modal.show{display:flex}
+.panel{
+  width:min(720px,100%);max-height:90vh;overflow:auto;background:var(--cream);
+  border-radius:22px 22px 0 0;padding:20px
+}
+.panel-head{display:flex;justify-content:space-between;align-items:center}
+.panel h2{font-family:Georgia,serif;margin:0}
+.close{border:0;background:#eee;border-radius:50%;width:38px;height:38px;font-size:22px}
+.cart-item{display:grid;grid-template-columns:65px 1fr auto;gap:10px;align-items:center;background:white;border:1px solid var(--line);border-radius:12px;padding:9px;margin:9px 0}
+.cart-item img{width:65px;height:65px;object-fit:cover;border-radius:9px}
+.qty{display:flex;align-items:center;gap:8px}
+.qty button{border:1px solid var(--line);background:white;border-radius:7px;width:30px;height:30px}
+.total{font-size:22px;font-weight:800;text-align:right;margin:15px 0}
+label{font-weight:700;display:block;margin:10px 0 5px}
+input,textarea,select{width:100%;border:1px solid #ddd0d4;border-radius:10px;padding:11px;background:white}
+textarea{min-height:75px;resize:vertical}
+.payment-info{display:none;background:#fff0f5;border:1px solid #e8cbd5;border-radius:12px;padding:12px;margin-top:8px}
+.payment-info.show{display:block}
+.payment-line{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid #ead6dd}
+.payment-line:last-of-type{border-bottom:0}
+.payment-line span{color:var(--muted)}
+.payment-line strong{color:var(--brown);text-align:right}
+.payment-help{margin-top:9px;color:var(--muted);font-size:13px;line-height:1.5}
+.whatsapp{width:100%;border:0;background:#25d366;color:white;border-radius:11px;padding:14px;font-weight:800;font-size:16px;margin-top:14px}
+footer{background:var(--brown);color:white;text-align:center;padding:28px 18px}
+.footer-grid{max-width:1000px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
+.footer-grid div{padding:8px}
+.footer-grid strong{color:#f4a2ba}
+.small{font-size:13px;color:#f3dfe5}
+@media(max-width:800px){
+  .brand{font-size:32px}.cart-top{position:static;margin:12px auto 0;display:inline-block}
+  .categories{grid-template-columns:repeat(2,1fr);gap:12px}
+  .cat img{height:120px}.info{grid-template-columns:repeat(2,1fr)}
+  .info div:nth-child(2){border-right:0}.info div{border-bottom:1px solid var(--line)}
+  .products{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  main{padding:18px 12px 100px}.categories{gap:10px}
+  .cat h3{font-size:17px}.cat p{font-size:12px}
+  .product{grid-template-columns:82px 1fr;min-height:120px}.product img{width:82px;height:82px}
+  .product h3{font-size:16px}.section-title{font-size:26px}
+  .footer-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-row">
+    <div class="brand">Dolce<span>Tentazione</span></div>
+    <div class="tagline">Pedidos de viernes · pedidos y ventas</div>
+    <button class="cart-top" data-action="cart-open">🛍️ Ver mi pedido <b id="topTotal">$0</b></button>
+  </div>
+</header>
+
+<main>
+  <div id="homeView">
+  <div class="hero">
+    <h1>♡ Elige tu antojo favorito ♡</h1>
+    <p>Hecho con cariño en Dolce Tentazione</p>
+  </div>
+
+  <div class="categories">
+    <article class="cat" data-section="reposteria" role="button" tabindex="0">
+      <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=700&q=85" alt="Pastel de chocolate">
+      <div class="cat-body"><h3>Repostería</h3><p>Pasteles, rebanadas, cupcakes, galletas y más.</p><button type="button">Ver productos</button></div>
+    </article>
+    <article class="cat" data-section="calientes" role="button" tabindex="0">
+      <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=700&q=85" alt="Café latte">
+      <div class="cat-body"><h3>Bebidas calientes</h3><p>Cafés, capuchinos, lattes, chocolate y tisana caliente.</p><button type="button">Ver productos</button></div>
+    </article>
+    <article class="cat" data-section="frappes" role="button" tabindex="0">
+      <img src="https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=700&q=85" alt="Frappé">
+      <div class="cat-body"><h3>Frappés</h3><p>Frappés, bebidas frías, sodas, Icee y chamoyadas.</p><button type="button">Ver productos</button></div>
+    </article>
+  </div>
+  </div>
+
+  <section id="reposteria" class="section">
+    <div class="category-head">
+      <button class="back" data-action="home">← Categorías</button>
+      <button class="mini-cart" data-action="cart-open">🛒 Ver pedido</button>
+    </div>
+    <h2 class="section-title">🍰 Repostería</h2>
+    <div class="products">
+      <div class="product" data-id="rebanada" data-name="Rebanada de pastel" data-price="40">
+        <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=300&q=85" alt="Rebanada de pastel">
+        <div><h3>Rebanada de pastel</h3><p>Deliciosas rebanadas de nuestros pasteles.</p><span class="price">$40</span><div class="product-actions"><button class="add" data-action="add">+ Agregar</button></div></div>
+      </div>
+      <div class="product" data-id="flan" data-name="Flan" data-price="37">
+        <img src="https://images.unsplash.com/photo-1571115177098-24ec42ed204d?auto=format&fit=crop&w=300&q=85" alt="Flan">
+        <div><h3>Flan</h3><p>Suave y cremoso, con caramelo.</p><span class="price">$37</span><div class="product-actions"><button class="add" data-action="add">+ Agregar</button></div></div>
+      </div>
+      <div class="product" data-id="pay" data-name="Pay frío" data-price="30">
+        <img src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&w=300&q=85" alt="Pay frío">
+        <div><h3>Pay frío</h3><p>Pay de limón con base de galleta.</p><span class="price">$30</span><div class="product-actions"><button class="add" data-action="add">+ Agregar</button></div></div>
+      </div>
+      <div class="product" data-id="cupcake" data-name="Cupcake" data-price="30">
+        <img src="https://images.unsplash.com/photo-1486427944299-d1955d23e34d?auto=format&fit=crop&w=300&q=85" alt="Cupcake">
+        <div><h3>Cupcake</h3><p>Cupcakes decorados con amor.</p><span class="price">$30</span><div class="product-actions"><button class="add" data-action="add">+ Agregar</button></div></div>
+      </div>
+      <div class="product" data-id="crumbl" data-name="Galleta crumbl" data-price="35">
+        <img src="https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=300&q=85" alt="Galleta crumbl">
+        <div><h3>Galleta crumbl</h3><p>Grande, suave y deliciosa.</p>
+          <select class="flavor">
+            <option>Nutella</option><option>Red velvet</option><option>Chocochips</option><option>Cocoa con frutos secos</option>
+          </select>
+          <span class="price">$35</span><div class="product-actions"><button class="add" data-action="add">+ Agregar</button></div>
+        </div>
+      </div>
+      <div class="product" data-id="polvoron" data-name="Polvorón" data-price="30">
+        <img src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=300&q=85" alt="Polvorón">
+        <div><h3>Polvorón</h3><p>Tradicional y delicioso.</p><span class="price">$30</span><div class="product-actions"><button class="add" data-action="add">+ Agregar</button></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="calientes" class="section">
+    <div class="category-head">
+      <button class="back" data-action="home">← Categorías</button>
+      <button class="mini-cart" data-action="cart-open">🛒 Ver pedido</button>
+    </div>
+    <h2 class="section-title">☕ Bebidas calientes</h2>
+    <div class="products">
+      <div class="product" data-id="americano" data-name="Café americano" data-price="30">
+        <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=300&q=85" alt="Café americano">
+        <div><h3>Café americano</h3><p>Café recién preparado.</p><span class="price">$30</span><div class="product-actions"><button class="add" data-action="add">+ Agregar</button></div></div>
+      </div>
+      <div class="product" data-id="capuchino" data-name="Capuchino" data-price="35">
+        <img src="https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=300&q=85" alt="Capuchino">
+        <div><h3>Capuchino</h3><p>Espresso, leche y espuma.</p><span class="price">$35</span><div class="product-actions"><button class="add" data-action="add">+ Agregar</button></div></div>
+      </div>
+      <div class="product" data-id="latte" data-name="Latte saborizado" data-price="40">
+        <img src="https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=300&q=85" alt="Latte">
+        <div><h3>Latte saborizado</h3><p>Elige tu sabor favorito.</p>
+          <select class="flavor">
+            <option>Caramelo</option><option>Mazapán</option><option>Rompope</option><option>Oreo</option><option>Moka</option><option>Taro</option><option>Chocolate blanco</option><option>Nutella</option>
+          </select>
+          <span class="price">$40</span><div class="product-actions"><button class="add" data-action="add">+ Agregar</button></div>
+        </div>
+      </div>
+      <div class="product" data-id="chocolate" data-name="Chocolate caliente" data-price="40">
+        <img src="https://images.unsplash.com/photo-1542990253-0d0f5be5f4d8?auto=format&fit=crop&w=300&q=85" alt="Chocolate caliente">
+        <div><h3>Chocolate caliente</h3><p>Calientito y reconfortante.</p><span class="price">$40</span><div class="product-actions"><button class="add" data-action="add">+ Agregar</button></div></div>
+      </div>
+      <div class="product" data-id="tisana" data-name="Tisana ponche" data-price="40">
+        <img src="https://dulcecom.com/cdn/shop/files/Ponche_de_Frutas_Mexico.jpg?v=1744725055&width=800" alt="Tisana ponche">
+        <div><h3>Tisana ponche</h3><p>Infusión frutal caliente con notas de ponche.</p><span class="price">$40</span><div class="product-actions"><button class="add" data-action="add">+ Agregar</button></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="frappes" class="section">
+    <div class="category-head">
+      <button class="back" data-action="home">← Categorías</button>
+      <button class="mini-cart" data-action="cart-open">🛒 Ver pedido</button>
+    </div>
+    <h2 class="section-title">🧋 Frappés y bebidas frías</h2>
+    <div class="products">
+      <div class="product" data-id="frappe" data-name="Frappé de sabor" data-price="60">
+        <img src="https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=300&q=85" alt="Frappé de sabor">
+        <div><h3>Frappé de sabor</h3><p>Preparado con café, hielo y crema.</p>
+          <select class="flavor">
+            <option>Oreo</option><option>Caramelo</option><option>Mazapán</option><option>Rompope</option><option>Moka</option><option>Taro</option><option>Chocolate blanco</option><option>Nutella</option>
+          </select>
+          <span class="price">$60</span><div class="product-actions"><button class="add" data-action="add">+ Agregar</button></div>
+        </div>
+      </div>
+      <div class="product" data-id="frappeclasico" data-name="Frappucchino clásico" data-price="55">
+        <img src="https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=300&q=85" alt="Frappucchino clásico">
+        <div><h3>Frappucchino clásico</h3><p>Café frío, cremoso y refrescante.</p><span class="price">$55</span><div class="product-actions"><button class="add" data-action="add">+ Agregar</button></div></div>
+      </div>
+      <div class="product" data-id="frappeespecial" data-name="Frappé especial" data-price="70">
+        <img src="https://images.unsplash.com/photo-1553787499-6f8e5d4e0f68?auto=format&fit=crop&w=300&q=85" alt="Frappé especial">
+        <div><h3>Frappé especial</h3><p>Frutos rojos, fresas con crema o Gansito.</p><select class="flavor"><option>Frutos rojos</option><option>Fresas con crema</option><option>Gansito</option></select><span class="price">$70</span><div class="product-actions"><button class="add" data-action="add">+ Agregar</button></div></div>
+      </div>
+      <div class="product" data-id="soda" data-name="Soda italiana" data-price="50">
+        <img src="https://i.pinimg.com/736x/58/e0/a2/58e0a29e686c40c2037ab4df35d29da6.jpg" alt="Soda italiana">
+        <div><h3>Soda italiana</h3><p>Refrescante, con hielo y mucho sabor.</p><select class="flavor"><option>Manzana verde</option><option>Mora azul</option></select><span class="price">$50</span><div class="product-actions"><button class="add" data-action="add">+ Agregar</button></div></div>
+      </div>
+      <div class="product" data-id="icee" data-name="Icee" data-price="55">
+        <img src="https://www.icee.com/wp-content/uploads/2020/01/2017_ICEE-Photoshoot-664-Edit_HR.jpg" alt="Icee">
+        <div><h3>Icee</h3><p>Bebida granizada, fría y refrescante.</p><span class="price">$55</span><div class="product-actions"><button class="add" data-action="add">+ Agregar</button></div></div>
+      </div>
+      <div class="product" data-id="chamoyada" data-name="Chamoyada" data-price="60">
+        <img src="https://img.postershop.me/cdn-cgi/image/width%3D1024%2Cformat%3Dwebp/https%3A/img.postershop.me/11766/9b90604e-39ed-4365-ad22-96f917c74187_image.jpg" alt="Chamoyada">
+        <div><h3>Chamoyada</h3><p>Granizada de fruta con chamoy y chile.</p><select class="flavor"><option>Fresa</option><option>Mango</option></select><span class="price">$60</span><div class="product-actions"><button class="add" data-action="add">+ Agregar</button></div></div>
+      </div>
+    </div>
+  </section>
+
+  
+</main>
+
+<div class="cart-bar">
+  <div>🛒 <b id="cartCount">0</b> productos · <b id="barTotal">$0</b></div>
+  <button data-action="cart-open">Ver mi pedido</button>
+</div>
+
+<div id="cartModal" class="modal" data-action="overlay-close">
+  <div class="panel">
+    <div class="panel-head"><h2>🛍️ Mi pedido</h2><button class="close" data-action="cart-close">×</button></div>
+    <div id="cartItems"></div>
+    <div class="total">Total: <span id="modalTotal">$0</span></div>
+    <label>Nombre completo</label>
+    <input id="customerName" placeholder="Escribe tu nombre">
+    <label>Forma de pago</label>
+    <select id="payment">
+      <option>Efectivo</option><option>Transferencia</option>
+    </select>
+    <div id="paymentInfo" class="payment-info">
+      <b>💳 Datos para transferencia</b>
+      <div class="payment-line"><span>Banco</span><strong>Banco Azteca</strong></div>
+      <div class="payment-line"><span>Beneficiario</span><strong>Karina López</strong></div>
+      <div class="payment-line"><span>Tarjeta para transferencias desde otros bancos</span><strong>4198 2101 2685 8983</strong></div>
+      <div class="payment-help">Una vez realizada la transferencia, envía tu comprobante por WhatsApp.</div>
+    </div>
+    <label>Notas o indicaciones (opcional)</label>
+    <textarea id="notes" placeholder="Ej. sin nuez, recoger a las 5 pm..."></textarea>
+    <button class="whatsapp" data-action="whatsapp">🟢 Enviar pedido por WhatsApp</button>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-grid">
+    <div><strong>💗 Hecho con amor</strong><br><span class="small">Productos preparados con ingredientes de calidad.</span></div>
+    <div><strong>🎂 Ordena fácil</strong><br><span class="small">Elige, agrega y envía tu pedido por WhatsApp.</span></div>
+    <div><strong>🕐 Listo para ti</strong><br><span class="small">Preparamos tu pedido con dedicación.</span></div>
+    <div><strong>♡ Gracias por elegirnos</strong><br><span class="small">Tu apoyo hace crecer a DolceTentazione.</span></div>
+  </div>
+</footer>
+
+<script>
+(() => {
+  'use strict';
+
+  const cart = [];
+  const money = n => '$' + Number(n).toLocaleString('es-MX');
+
+  function total() {
+    return cart.reduce((s, x) => s + x.qty * x.price, 0);
+  }
+
+  function count() {
+    return cart.reduce((s, x) => s + x.qty, 0);
+  }
+
+  function showSection(id) {
+    const section = document.getElementById(id);
+    if (!section) return;
+
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    section.classList.add('active');
+    document.body.classList.add('category-open');
+
+    // Entramos realmente al submenu, arriba de la pantalla.
+    window.scrollTo({top:0, left:0, behavior:'smooth'});
+  }
+
+  function backHome() {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.body.classList.remove('category-open');
+    window.scrollTo({top:0, left:0, behavior:'smooth'});
+  }
+
+  function addProduct(product) {
+    const flavor = product.querySelector('.flavor')?.value || '';
+    const id = product.dataset.id + '|' + flavor;
+    const existing = cart.find(x => x.id === id);
+
+    if (existing) {
+      existing.qty++;
+    } else {
+      cart.push({
+        id,
+        name: product.dataset.name,
+        price: Number(product.dataset.price),
+        flavor,
+        qty: 1,
+        img: product.querySelector('img')?.src || ''
+      });
+    }
+    updateCart();
+  }
+
+  function changeQty(index, delta) {
+    if (!cart[index]) return;
+    cart[index].qty += delta;
+    if (cart[index].qty <= 0) cart.splice(index, 1);
+    updateCart();
+  }
+
+  function removeItem(index) {
+    if (cart[index]) cart.splice(index, 1);
+    updateCart();
+  }
+
+  function updateCart() {
+    const c = count();
+    const t = total();
+    const set = (id, value) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    };
+    set('cartCount', c);
+    set('barTotal', money(t));
+    set('topTotal', money(t));
+    set('modalTotal', money(t));
+    renderCart();
+  }
+
+  function renderCart() {
+    const box = document.getElementById('cartItems');
+    if (!box) return;
+
+    if (!cart.length) {
+      box.innerHTML = '<div class="empty">Tu pedido está vacío.<br>Elige algo delicioso 💗</div>';
+      return;
+    }
+
+    box.innerHTML = cart.map((x, i) => `
+      <div class="cart-item">
+        <img src="${x.img}" alt="">
+        <div>
+          <b>${x.name}</b>
+          ${x.flavor ? `<div class="small">${x.flavor}</div>` : ''}
+          <div>${money(x.price)}</div>
+        </div>
+        <div class="qty">
+          <button type="button" data-action="qty-minus" data-index="${i}">−</button>
+          <b>${x.qty}</b>
+          <button type="button" data-action="qty-plus" data-index="${i}">+</button>
+          <button type="button" data-action="remove" data-index="${i}" style="border:0;background:none">🗑️</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function openCart() {
+    document.getElementById('cartModal')?.classList.add('show');
+    updateCart();
+  }
+
+  function closeCart() {
+    document.getElementById('cartModal')?.classList.remove('show');
+  }
+
+  function togglePayment() {
+    const payment = document.getElementById('payment');
+    const info = document.getElementById('paymentInfo');
+    if (payment && info) info.classList.toggle('show', payment.value === 'Transferencia');
+  }
+
+  function sendWhatsApp() {
+    if (!cart.length) {
+      alert('Agrega al menos un producto a tu pedido.');
+      return;
+    }
+
+    const name = document.getElementById('customerName')?.value.trim() || 'Cliente';
+    const payment = document.getElementById('payment')?.value || 'Efectivo';
+    const notes = document.getElementById('notes')?.value.trim() || '';
+
+    const lines = cart.map(x =>
+      `• ${x.qty} x ${x.name}${x.flavor ? ' (' + x.flavor + ')' : ''} — ${money(x.price * x.qty)}`
+    ).join('\n');
+
+    let msg =
+      `Hola DolceTentazione 💗\n\n` +
+      `Quiero hacer este pedido:\n${lines}\n\n` +
+      `Total: ${money(total())}\n` +
+      `Nombre: ${name}\n` +
+      `Forma de pago: ${payment}`;
+
+    if (notes) msg += `\nNotas: ${notes}`;
+
+    window.open(
+      'https://wa.me/525532699350?text=' + encodeURIComponent(msg),
+      '_blank'
+    );
+  }
+
+  document.addEventListener('click', event => {
+    const category = event.target.closest('.cat[data-section]');
+    if (category) {
+      showSection(category.dataset.section);
+      return;
+    }
+
+    const actionEl = event.target.closest('[data-action]');
+    if (!actionEl) return;
+
+    const action = actionEl.dataset.action;
+
+    if (action === 'section') showSection(actionEl.dataset.section);
+    else if (action === 'home') backHome();
+    else if (action === 'cart-open') openCart();
+    else if (action === 'cart-close') closeCart();
+    else if (action === 'overlay-close' && event.target.id === 'cartModal') closeCart();
+    else if (action === 'add') addProduct(actionEl.closest('.product'));
+    else if (action === 'qty-minus') changeQty(Number(actionEl.dataset.index), -1);
+    else if (action === 'qty-plus') changeQty(Number(actionEl.dataset.index), 1);
+    else if (action === 'remove') removeItem(Number(actionEl.dataset.index));
+    else if (action === 'whatsapp') sendWhatsApp();
+  });
+
+  document.addEventListener('change', event => {
+    if (event.target.id === 'payment') togglePayment();
+  });
+
+  document.addEventListener('keydown', event => {
+    if ((event.key === 'Enter' || event.key === ' ') &&
+        event.target.matches('.cat[data-section]')) {
+      event.preventDefault();
+      showSection(event.target.dataset.section);
+    }
+  });
+
+  document.body.classList.remove('category-open');
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  updateCart();
+})();
+</script>
+</body>
+</html>
