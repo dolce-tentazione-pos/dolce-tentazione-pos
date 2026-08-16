@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#4a2d35">
-<title>DolceTentazione | Pedidos de viernes</title>
+<title>DolceTentazione Editor v10 · DolceTentazione | Pedidos de viernes</title>
 <style>
 :root{
   --brown:#432b33; --pink:#d86f92; --pink2:#ef9bb3; --cream:#fffaf7;
@@ -137,9 +137,115 @@ footer{background:var(--brown);color:white;text-align:center;padding:28px 18px}
   .product h3{font-size:16px}.section-title{font-size:26px}
   .footer-grid{grid-template-columns:repeat(2,1fr)}
 }
+.delivery-options{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:7px}
+.delivery-option{border:1px solid #ddd0d4;background:#fff;border-radius:11px;padding:10px;cursor:pointer}
+.delivery-option input{width:auto;margin-right:6px}
+.footer-admin{text-align:center;margin:10px 0 16px}
+.footer-admin .admin-launch{position:static;border:0;background:transparent;color:#f3dfe5;padding:6px 10px;font-size:12px;box-shadow:none}
+.footer-admin .admin-launch:hover{color:white}
+.admin-modal .panel{max-width:980px}
+.admin-tabs{display:flex;gap:8px;overflow:auto;margin:14px 0}
+.admin-tab{border:1px solid var(--line);background:white;border-radius:10px;padding:9px 12px;font-weight:700;white-space:nowrap}
+.admin-tab.active{background:var(--mauve);color:white}
+.admin-view{display:none}.admin-view.active{display:block}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.kpi{background:white;border:1px solid var(--line);border-radius:13px;padding:13px}.kpi b{display:block;font-size:23px;color:var(--mauve);margin-top:4px}
+.admin-table{width:100%;border-collapse:collapse;background:white}.admin-table th,.admin-table td{padding:9px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}.admin-table th{color:var(--mauve)}
+.flavor-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.flavor-row{background:white;border:1px solid var(--line);border-radius:10px;padding:9px;display:flex;justify-content:space-between}
+.admin-btn{border:0;border-radius:10px;padding:10px 13px;background:var(--pink);color:white;font-weight:700;margin:8px 5px 8px 0}.admin-btn.secondary{background:white;color:var(--brown);border:1px solid var(--line)}
+.closed-banner{display:none;background:#fff0f5;border:1px solid #e8cbd5;color:var(--mauve);padding:14px;border-radius:12px;text-align:center;margin:10px 0;font-weight:700}.closed-banner.show{display:block}
+@media(max-width:700px){.kpis{grid-template-columns:repeat(2,1fr)}.flavor-stats{grid-template-columns:1fr}.delivery-options{grid-template-columns:1fr}}
+
+/* Fase 2: editor de catálogo */
+body.edit-mode .edit-mode-strip{display:none;position:fixed;top:0;left:0;right:0;z-index:9998;background:#f3d35a;color:#4b3a00;align-items:center;justify-content:center;gap:10px;padding:6px 10px;font-size:12px;font-weight:800}
+.menu-editor-list{display:grid;gap:10px}
+.menu-editor-item{background:#fff;border:1px solid var(--line);border-radius:13px;padding:12px}
+.menu-editor-top{display:flex;align-items:center;gap:10px}
+.menu-editor-top img{width:58px;height:58px;object-fit:cover;border-radius:10px}
+.menu-editor-top strong{flex:1}
+.menu-editor-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.menu-editor-grid .full{grid-column:1/-1}
+.menu-editor-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.menu-editor-actions button{border:0;border-radius:9px;padding:8px 11px;font-weight:700}
+.menu-save{background:var(--pink);color:white}
+.menu-toggle{background:#fff0f5;color:var(--mauve);border:1px solid #ead1d8!important}
+.menu-add-box{background:#fff;border:1px dashed #d9c5cc;border-radius:13px;padding:14px;margin-top:14px}
+.menu-add-box h3{margin-top:0}
+.menu-help{font-size:12px;color:var(--muted);line-height:1.45}
+@media(max-width:650px){
+  .menu-editor-grid{grid-template-columns:1fr}
+  .menu-editor-grid .full{grid-column:auto}
+}
+
+#paymentInfo{display:none}\n
+
+body.edit-mode main{background:#fff8d8;border-radius:0;min-height:70vh}
+body.edit-mode .edit-add-product{display:block}
+.edit-add-product{display:none;text-align:center;margin:16px 0 26px}
+.edit-add-product button{border:2px dashed #d8b83f;background:#fff6bd;color:#5b4b16;border-radius:12px;padding:10px 16px;font-weight:800}
+body.edit-mode .product{outline:2px solid #e5c84a;outline-offset:2px}
+body.edit-mode::after{content:'✏️ Edición activa · vuelve a ⚙️ Administración para salir';position:fixed;top:8px;right:8px;z-index:9997;background:#f3d35a;color:#4b3a00;border-radius:14px;padding:5px 9px;font-size:12px;font-weight:800;pointer-events:none;box-shadow:0 2px 8px #0002}
+
+
+body.edit-mode main{background:#fff8d8!important}
+.edit-admin-hint{display:none;position:fixed;top:8px;right:8px;z-index:9997;background:#f3d35a;color:#4b3a00;border-radius:14px;padding:6px 10px;font-size:12px;font-weight:800;box-shadow:0 2px 8px #0002}
+body.edit-mode .edit-admin-hint{display:block}
+
+#cartModal .panel{padding-bottom:24px}
+#cartModal .whatsapp{margin-bottom:4px}
+
+/* ===== Editor independiente DT v2 ===== */
+#dtEditorWindow{display:none;position:fixed;inset:0;z-index:20000;background:#fffaf5;overflow:auto}
+#dtEditorWindow.open{display:block}
+#dtEditorWindow .dt-editor-top{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid #ead9df;padding:14px 16px;box-shadow:0 2px 10px #0001}
+#dtEditorWindow .dt-editor-brand{font-family:Georgia,serif;font-size:25px;font-weight:700;color:#6f3653}
+#dtEditorWindow .dt-editor-sub{font-size:13px;color:#756b70;margin-top:2px}
+#dtEditorWindow .dt-editor-close{float:right;border:0;border-radius:50%;width:42px;height:42px;background:#eee;color:#333;font-size:24px;font-weight:800}
+#dtEditorWindow .dt-editor-body{max-width:900px;margin:0 auto;padding:18px 16px 50px}
+#dtEditorWindow .dt-editor-actions{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0 18px}
+#dtEditorWindow .dt-btn{border:0;border-radius:12px;padding:11px 15px;font-weight:800;font-size:15px}
+#dtEditorWindow .dt-primary{background:#d2789b;color:white}
+#dtEditorWindow .dt-secondary{background:#fff;border:1px solid #dfcdd4;color:#6f3653}
+#dtEditorWindow .dt-danger{background:#fff0f0;color:#9b3333;border:1px solid #e6bcbc}
+#dtEditorWindow .dt-cats{display:flex;gap:9px;flex-wrap:wrap;overflow:visible;padding:3px 0 12px}
+#dtEditorWindow .dt-cat{white-space:nowrap;border:1px solid #e1d2d8;background:#fff;border-radius:12px;padding:10px 13px;font-weight:800}
+#dtEditorWindow .dt-cat.active{background:#9a466d;color:white;border-color:#9a466d}
+#dtEditorWindow .dt-card{background:#fff;border:1px solid #ead9df;border-radius:18px;padding:14px;margin:10px 0;display:flex;gap:14px;align-items:center}
+#dtEditorWindow .dt-card img{width:86px;height:86px;object-fit:cover;border-radius:13px;background:#f1e7eb}
+#dtEditorWindow .dt-card-main{flex:1;min-width:0}
+#dtEditorWindow .dt-card h3{margin:0 0 4px;font-size:19px;color:#3f3036}
+#dtEditorWindow .dt-price{font-weight:900;color:#8e3c66;font-size:18px}
+#dtEditorWindow .dt-meta{font-size:13px;color:#7c7075;margin:4px 0}
+#dtEditorWindow .dt-card-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+#dtEditorWindow .dt-empty{padding:30px;text-align:center;border:2px dashed #e5cfd7;border-radius:16px;color:#756b70}
+#dtEditorWindow .dt-form{background:#fff;border-radius:18px;padding:18px;border:1px solid #ead9df}
+#dtEditorWindow label{display:block;font-weight:800;margin:12px 0 6px;color:#45353b}
+#dtEditorWindow input,#dtEditorWindow textarea,#dtEditorWindow select{width:100%;box-sizing:border-box;border:1px solid #dccbd2;border-radius:11px;padding:12px;font-size:16px;background:#fff}
+#dtEditorWindow textarea{min-height:80px;resize:vertical}
+#dtEditorWindow .dt-form-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+#dtEditorWindow .dt-note{background:#fff8cf;border:1px solid #e4cf68;border-radius:12px;padding:11px;color:#5d4d13;font-size:13px}
+#dtEditorWindow .dt-hidden{display:none!important}
+@media(max-width:600px){
+  #dtEditorWindow .dt-card{align-items:flex-start}
+  #dtEditorWindow .dt-card img{width:74px;height:74px}
+  #dtEditorWindow .dt-card-main{width:calc(100% - 90px)}
+}
+
+
+#dtEditorWindow .dt-photo-row{display:grid;grid-template-columns:1fr 150px;gap:12px;align-items:start}
+#dtEditorWindow .dt-photo-preview{width:150px;height:120px;object-fit:cover;border-radius:12px;border:1px solid #e1d2d8;background:#f5edf0}
+#dtEditorWindow .dt-file{display:block;margin-top:8px;padding:11px;border:1px dashed #d3b9c4;border-radius:11px;background:#fff8fb}
+#dtEditorWindow .dt-file input{border:0;padding:0;background:transparent}
+@media(max-width:600px){#dtEditorWindow .dt-photo-row{grid-template-columns:1fr}.dt-photo-preview{width:100%!important;height:180px!important}}
+
+#dtEditorWindow .dt-category-management{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 14px}
+#dtEditorWindow .dt-category-chip{display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid #e0cbd4;border-radius:999px;background:#fff;font-weight:700;color:#633d50}
+#dtEditorWindow .dt-category-chip button{border:0;background:#fff0f3;color:#9a3f58;border-radius:50%;width:28px;height:28px;font-weight:900}
+#dtEditorWindow .dt-category-note{font-size:.86rem;color:#75676d;margin:-7px 0 12px}
+
+.categories .cat[data-section]:not([data-section="reposteria"]):not([data-section="calientes"]):not([data-section="frappes"]){outline:1px solid rgba(154,63,88,.12)}
 </style>
 </head>
-<body>
+<body><div class="edit-admin-hint">✏️ Modo edición activo</div>
 
 <header>
   <div class="header-row">
@@ -150,6 +256,7 @@ footer{background:var(--brown);color:white;text-align:center;padding:28px 18px}
 </header>
 
 <main>
+  <div id="closedBanner" class="closed-banner">🔴 En este momento los pedidos están cerrados. Gracias por visitarnos 💗</div>
   <div id="homeView">
   <div class="hero">
     <h1>♡ Elige tu antojo favorito ♡</h1>
@@ -209,6 +316,9 @@ footer{background:var(--brown);color:white;text-align:center;padding:28px 18px}
         <div><h3>Polvorón</h3><p>Tradicional y delicioso.</p><span class="price">$30</span><div class="product-actions"><button class="add" data-action="add">+ Agregar</button></div></div>
       </div>
     </div>
+<div class="edit-add-product" data-edit-section="reposteria">
+  <button type="button" onclick="openAddProduct('reposteria');return false;">➕ Agregar producto a este menú</button>
+</div>
   </section>
 
   <section id="calientes" class="section">
@@ -244,6 +354,9 @@ footer{background:var(--brown);color:white;text-align:center;padding:28px 18px}
         <div><h3>Tisana ponche</h3><p>Infusión frutal caliente con notas de ponche.</p><span class="price">$40</span><div class="product-actions"><button class="add" data-action="add">+ Agregar</button></div></div>
       </div>
     </div>
+<div class="edit-add-product" data-edit-section="calientes">
+  <button type="button" onclick="openAddProduct('calientes');return false;">➕ Agregar producto a este menú</button>
+</div>
   </section>
 
   <section id="frappes" class="section">
@@ -276,13 +389,18 @@ footer{background:var(--brown);color:white;text-align:center;padding:28px 18px}
       </div>
       <div class="product" data-id="icee" data-name="Icee" data-price="55">
         <img src="https://www.icee.com/wp-content/uploads/2020/01/2017_ICEE-Photoshoot-664-Edit_HR.jpg" alt="Icee">
-        <div><h3>Icee</h3><p>Bebida granizada, fría y refrescante.</p><span class="price">$55</span><div class="product-actions"><button class="add" data-action="add">+ Agregar</button></div></div>
+        <div><h3>Icee</h3><p>Bebida granizada, fría y refrescante.</p>
+        <select class="flavor"><option>Fresa</option><option>Mora azul</option><option>Manzana verde</option></select>
+        <span class="price">$55</span><div class="product-actions"><button class="add" data-action="add">+ Agregar</button></div></div>
       </div>
       <div class="product" data-id="chamoyada" data-name="Chamoyada" data-price="60">
         <img src="https://img.postershop.me/cdn-cgi/image/width%3D1024%2Cformat%3Dwebp/https%3A/img.postershop.me/11766/9b90604e-39ed-4365-ad22-96f917c74187_image.jpg" alt="Chamoyada">
         <div><h3>Chamoyada</h3><p>Granizada de fruta con chamoy y chile.</p><select class="flavor"><option>Fresa</option><option>Mango</option></select><span class="price">$60</span><div class="product-actions"><button class="add" data-action="add">+ Agregar</button></div></div>
       </div>
     </div>
+<div class="edit-add-product" data-edit-section="frappes">
+  <button type="button" onclick="openAddProduct('frappes');return false;">➕ Agregar producto a este menú</button>
+</div>
   </section>
 
   
@@ -295,29 +413,155 @@ footer{background:var(--brown);color:white;text-align:center;padding:28px 18px}
 
 <div id="cartModal" class="modal" data-action="overlay-close">
   <div class="panel">
-    <div class="panel-head"><h2>🛍️ Mi pedido</h2><button class="close" data-action="cart-close">×</button></div>
-    <div id="cartItems"></div>
-    <div class="total">Total: <span id="modalTotal">$0</span></div>
-    <label>Nombre completo</label>
-    <input id="customerName" placeholder="Escribe tu nombre">
-    <label>Forma de pago</label>
-    <select id="payment">
-      <option>Efectivo</option><option>Transferencia</option>
-    </select>
-    <div id="paymentInfo" class="payment-info">
-      <b>💳 Datos para transferencia</b>
-      <div class="payment-line"><span>Banco</span><strong>Banco Azteca</strong></div>
-      <div class="payment-line"><span>Beneficiario</span><strong>Karina López</strong></div>
-      <div class="payment-line"><span>Tarjeta para transferencias desde otros bancos</span><strong>4198 2101 2685 8983</strong></div>
-      <div class="payment-help">Una vez realizada la transferencia, envía tu comprobante por WhatsApp.</div>
+    <div class="panel-head">
+      <h2>🛍️ Mi pedido</h2>
+      <button class="close" type="button" data-action="cart-close">×</button>
     </div>
-    <label>Notas o indicaciones (opcional)</label>
+
+    <div id="cartItems"></div>
+
+    <div class="total">Total: <span id="modalTotal">$0</span></div>
+
+    <label for="customerName">Nombre completo</label>
+    <input id="customerName" placeholder="Escribe tu nombre">
+
+    <label for="customerPhone">Teléfono</label>
+    <input id="customerPhone" type="tel" inputmode="numeric" placeholder="10 dígitos">
+
+    <label for="payment">Forma de pago</label>
+    <select id="payment">
+      <option value="Efectivo">Efectivo</option>
+      <option value="Transferencia">Transferencia</option>
+    </select>
+
+    <div id="paymentInfo" class="payment-info">
+      <strong>💳 Datos para transferencia</strong>
+      <div style="margin-top:7px">Banco: <b>Banco Azteca</b></div>
+      <div>Beneficiario: <b>Karina López</b></div>
+      <div>Tarjeta para envíos desde otros bancos: <b>4198 2101 2685 8983</b></div>
+      <small>Una vez realizada la transferencia, envía tu comprobante por WhatsApp.</small>
+    </div>
+
+    <label>Entrega</label>
+    <div class="delivery-options">
+      <label class="delivery-option">
+        <input type="radio" name="delivery" value="0" checked>
+        <span>🏠 <b>Recolección</b><br><small>$0</small></span>
+      </label>
+      <label class="delivery-option">
+        <input type="radio" name="delivery" value="25">
+        <span>🚗 <b>Envío a domicilio</b><br><small>+$25</small></span>
+      </label>
+    </div>
+
+    <label for="notes">Notas o indicaciones (opcional)</label>
     <textarea id="notes" placeholder="Ej. sin nuez, recoger a las 5 pm..."></textarea>
-    <button class="whatsapp" data-action="whatsapp">🟢 Enviar pedido por WhatsApp</button>
+
+    <button class="whatsapp" type="button" data-action="whatsapp">
+      🟢 Enviar pedido por WhatsApp
+    </button>
+  </div>
+</div>
+
+<div id="pinModal" class="modal" data-action="pin-overlay-close">
+  <div class="panel" style="max-width:430px">
+    <div class="panel-head">
+      <h2>🔐 Administración</h2>
+      <button class="close" data-action="pin-close">×</button>
+    </div>
+    <p style="color:var(--muted)">Ingresa el PIN de administrador para continuar.</p>
+    <label>PIN</label>
+    <input id="adminPin" type="password" inputmode="numeric" maxlength="6" placeholder="••••" autocomplete="off">
+    <button class="whatsapp" style="background:var(--mauve)" data-action="pin-submit">Entrar</button>
+    <div id="pinError" style="display:none;color:#b42318;margin-top:9px;font-size:13px">PIN incorrecto.</div>
+  </div>
+</div>
+
+
+<div id="addProductModal" class="modal">
+  <div class="panel" style="max-width:500px">
+    <div class="panel-head"><h2>➕ Agregar producto</h2><button class="close" type="button" onclick="closeAddProduct();return false;">×</button></div>
+    <div class="menu-editor-grid">
+      <div>
+        <label>Categoría</label>
+        <select id="newProductCategory">
+          <option value="reposteria">🍰 Repostería</option>
+          <option value="calientes">☕ Bebidas calientes</option>
+          <option value="frappes">🧋 Frappés y bebidas frías</option>
+        </select>
+      </div>
+      <div><label>Nombre</label><input id="newProductName" placeholder="Ej. Cheesecake"></div>
+      <div><label>Precio</label><input id="newProductPrice" type="number" min="0" step="1" placeholder="0"></div>
+      <div><label>Foto (URL)</label><input id="newProductImg" placeholder="https://..."></div>
+      <div class="full"><label>Descripción</label><input id="newProductDesc" placeholder="Descripción breve"></div>
+      <div class="full"><label>Sabores (opcional, separados por coma)</label><input id="newProductFlavors" placeholder="Fresa, Mazapán, Oreo"></div>
+    </div>
+    <div class="menu-editor-actions">
+      <button type="button" class="menu-save" onclick="addNewProduct();return false;">➕ Agregar producto</button>
+      <button type="button" class="menu-toggle" onclick="closeAddProduct();return false;">Cancelar</button>
+    </div>
+  </div>
+</div>
+<div id="editProductModal" class="modal">
+  <div class="panel" style="max-width:500px">
+    <div class="panel-head"><h2>✏️ Editar producto</h2><button class="close" data-action="edit-product-close">×</button></div>
+    <div id="editProductForm"></div>
+  </div>
+</div>
+<div id="adminModal" class="modal admin-modal" data-action="admin-overlay-close">
+  <div class="panel">
+    <div class="panel-head"><h2>⚙️ Administración</h2><button class="close" data-action="admin-close">×</button></div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-admin-tab="resumen">📊 Resumen</button>
+      <button class="admin-tab" data-admin-tab="ventas">🧾 Ventas</button>
+      <button class="admin-tab" data-admin-tab="clientes">👤 Clientes</button>
+      <button class="admin-tab" data-admin-tab="sabores">🧋 Sabores</button><button type="button" class="admin-tab" data-admin-tab="menus">🍰 Menús</button>
+      <button class="admin-tab" data-admin-tab="control">🔴 Abrir/Cerrar</button>
+    </div>
+    <section class="admin-view active" id="admin-resumen">
+      <div class="kpis">
+        <div class="kpi">Ventas de hoy<b id="admSales">$0</b></div>
+        <div class="kpi">Pedidos<b id="admOrders">0</b></div>
+        <div class="kpi">Clientes<b id="admClients">0</b></div>
+        <div class="kpi">Ticket promedio<b id="admTicket">$0</b></div>
+      </div>
+      <button class="admin-btn" data-admin-action="export-sales">📥 Exportar ventas CSV</button>
+      <h3>🧋 Sabores más vendidos</h3><div id="topFlavors" class="flavor-stats"></div>
+    </section>
+    <section class="admin-view" id="admin-ventas">
+      <h3>🧾 Registro de ventas</h3>
+      <div style="overflow:auto"><table class="admin-table"><thead><tr><th>Fecha</th><th>Cliente</th><th>Productos / sabores</th><th>Entrega</th><th>Pago</th><th>Total</th></tr></thead><tbody id="salesTable"></tbody></table></div>
+    </section>
+    <section class="admin-view" id="admin-clientes">
+      <h3>👤 Clientes</h3>
+      <input id="clientSearch" placeholder="🔎 Buscar por nombre o teléfono" style="max-width:420px;margin:0 0 12px">
+      <div style="overflow:auto"><table class="admin-table"><thead><tr><th>Nombre</th><th>Teléfono</th><th>Compras</th><th>Total gastado</th><th>Última compra</th></tr></thead><tbody id="clientsTable"></tbody></table></div>
+    </section>
+    <section class="admin-view" id="admin-sabores">
+      <h3>🧋 Análisis por sabor</h3><p class="small" style="color:var(--muted)">Producto + sabor se registra con cada pedido.</p>
+      <div id="flavorBreakdown" class="flavor-stats"></div>
+    </section>
+    
+    <section class="admin-view" id="admin-menus">
+      <h3>🍰 Editar menús</h3>
+      <p class="menu-help">Activa el modo edición para navegar por tus categorías. Después toca cualquier producto para modificarlo.</p>
+      <button type="button" class="menu-save" id="activateEditBtn">✏️ Abrir editor de menús</button>
+      <p class="menu-help" style="margin-top:10px">El botón <b>➕ Agregar producto</b> aparecerá al final de cada menú mientras estés editando.</p>
+    </section>
+    
+<section class="admin-view" id="admin-control">
+      <h3>🔴 Control de pedidos</h3><p id="statusText">Pedidos abiertos.</p>
+      <button class="admin-btn" data-admin-action="open-orders">🟢 Abrir pedidos</button>
+      <button class="admin-btn secondary" data-admin-action="close-orders">🔴 Cerrar pedidos</button>
+      <p class="small" style="color:var(--muted)">Esta primera versión guarda los registros en este navegador. Después podemos conectar una base de datos para usar administración desde cualquier dispositivo.</p>
+    </section>
   </div>
 </div>
 
 <footer>
+  <div class="footer-admin">
+    <button class="admin-launch" data-action="admin-open">⚙️ Administración</button>
+  </div>
   <div class="footer-grid">
     <div><strong>💗 Hecho con amor</strong><br><span class="small">Productos preparados con ingredientes de calidad.</span></div>
     <div><strong>🎂 Ordena fácil</strong><br><span class="small">Elige, agrega y envía tu pedido por WhatsApp.</span></div>
@@ -326,195 +570,887 @@ footer{background:var(--brown);color:white;text-align:center;padding:28px 18px}
   </div>
 </footer>
 
+
 <script>
 (() => {
-  'use strict';
+'use strict';
+const cart=[];
+const money=n=>'$'+Number(n||0).toLocaleString('es-MX');
+const SALES_KEY='dt_sales_v1', CLIENTS_KEY='dt_clients_v1', OPEN_KEY='dt_open_v1';
+const getSales=()=>JSON.parse(localStorage.getItem(SALES_KEY)||'[]');
+const getClients=()=>JSON.parse(localStorage.getItem(CLIENTS_KEY)||'{}');
+const saveSales=x=>localStorage.setItem(SALES_KEY,JSON.stringify(x));
+const saveClients=x=>localStorage.setItem(CLIENTS_KEY,JSON.stringify(x));
+const ordersOpen=()=>localStorage.getItem(OPEN_KEY)!=='false';
+const setOrdersOpen=v=>{localStorage.setItem(OPEN_KEY,String(v));updateOpenState()};
+const total=()=>cart.reduce((a,x)=>a+x.qty*x.price,0);
+const count=()=>cart.reduce((a,x)=>a+x.qty,0);
+const deliveryCost=()=>Number(document.querySelector('input[name="delivery"]:checked')?.value||0);
 
-  const cart = [];
-  const money = n => '$' + Number(n).toLocaleString('es-MX');
+function showSection(id){
+ if(!ordersOpen()){alert('Los pedidos están cerrados en este momento.');return}
+ const sec=document.getElementById(id);if(!sec)return;
+ document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+ sec.classList.add('active');document.body.classList.add('category-open');window.scrollTo(0,0);
+}
+function backHome(){document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));document.body.classList.remove('category-open');window.scrollTo(0,0)}
+function addProduct(p){
+ if(!ordersOpen()){alert('Los pedidos están cerrados en este momento.');return}
+ const flavor=p.querySelector('.flavor')?.value||'',id=p.dataset.id+'|'+flavor,old=cart.find(x=>x.id===id);
+ if(old)old.qty++;else cart.push({id,name:p.dataset.name,price:+p.dataset.price,flavor,qty:1,img:p.querySelector('img')?.src||''});
+ updateCart();
+}
+function changeQty(i,d){if(!cart[i])return;cart[i].qty+=d;if(cart[i].qty<=0)cart.splice(i,1);updateCart()}
+function removeItem(i){cart.splice(i,1);updateCart()}
+function updateCart(){
+ ['cartCount','barTotal','topTotal','modalTotal'].forEach(id=>{
+   const el=document.getElementById(id);if(!el)return;
+   el.textContent=id==='cartCount'?count():money(total()+deliveryCost());
+ });
+ renderCart();
+}
+function renderCart(){
+ const box=document.getElementById('cartItems');if(!box)return;
+ if(!cart.length){box.innerHTML='<div class="empty">Tu pedido está vacío.<br>Elige algo delicioso 💗</div>';return}
+ box.innerHTML=cart.map((x,i)=>`<div class="cart-item"><img src="${x.img}" alt=""><div><b>${x.name}</b>${x.flavor?`<div class="small">${x.flavor}</div>`:''}<div>${money(x.price)}</div></div><div class="qty"><button data-action="qty-minus" data-index="${i}">−</button><b>${x.qty}</b><button data-action="qty-plus" data-index="${i}">+</button><button data-action="remove" data-index="${i}" style="border:0;background:none">🗑️</button></div></div>`).join('');
+}
+function openCart(){document.getElementById('cartModal')?.classList.add('show');updateCart()}
+function closeCart(){document.getElementById('cartModal')?.classList.remove('show')}
+function togglePayment(){
+ const info=document.getElementById('paymentInfo');
+ const payment=document.getElementById('payment');
+ if(info) info.style.display=payment?.value==='Transferencia'?'block':'none';
+}
 
-  function total() {
-    return cart.reduce((s, x) => s + x.qty * x.price, 0);
+function registerOrder(){
+ const name=document.getElementById('customerName').value.trim()||'Cliente';
+ const phone=document.getElementById('customerPhone').value.trim();
+ const payment=document.getElementById('payment').value;
+ const dc=deliveryCost(), grand=total()+dc, now=new Date();
+ const order={id:'DT-'+Date.now(),date:now.toISOString(),name,phone,payment,delivery:dc?'Envío a domicilio':'Recolección',deliveryCost:dc,total:grand,items:cart.map(x=>({name:x.name,flavor:x.flavor,qty:x.qty,price:x.price}))};
+ const sales=getSales();sales.push(order);saveSales(sales);
+ const clients=getClients(),key=phone?'tel:'+phone.replace(/\D/g,''):'name:'+name.toLowerCase();
+ const c=clients[key]||{name,phone,purchases:0,totalSpent:0,lastPurchase:null};
+ c.name=name;c.phone=phone;c.purchases++;c.totalSpent+=grand;c.lastPurchase=now.toISOString();clients[key]=c;saveClients(clients);
+ return order;
+}
+function sendWhatsApp(){
+ if(!cart.length){alert('Agrega al menos un producto a tu pedido.');return}
+ if(!ordersOpen()){alert('Los pedidos están cerrados en este momento.');return}
+ const name=document.getElementById('customerName').value.trim()||'Cliente',phone=document.getElementById('customerPhone').value.trim(),payment=document.getElementById('payment').value,notes=document.getElementById('notes').value.trim(),dc=deliveryCost();
+ const lines=cart.map(x=>`• ${x.qty} x ${x.name}${x.flavor?' ('+x.flavor+')':''} — ${money(x.price*x.qty)}`).join('\n');
+ let msg=`Hola DolceTentazione 💗\n\nQuiero hacer este pedido:\n${lines}\n\nSubtotal: ${money(total())}\nEntrega: ${dc?'Envío a domicilio +$25':'Recolección $0'}\nTotal: ${money(total()+dc)}\nNombre: ${name}`;
+ if(phone)msg+=`\nTeléfono: ${phone}`;msg+=`\nForma de pago: ${payment}`;if(notes)msg+=`\nNotas: ${notes}`;
+ registerOrder();window.open('https://wa.me/525532699350?text='+encodeURIComponent(msg),'_blank');closeCart();updateAdmin();
+}
+function updateOpenState(){
+ const open=ordersOpen();document.getElementById('closedBanner')?.classList.toggle('show',!open);
+ const st=document.getElementById('statusText');if(st)st.textContent=open?'Pedidos abiertos.':'Pedidos cerrados.';
+}
+function openAdmin(){
+  const pin=document.getElementById('pinModal');
+  const adm=document.getElementById('adminModal');
+  if(sessionStorage.getItem('dt_admin_auth')==='ok'){adm?.classList.add('show');updateAdmin();return}
+  document.getElementById('adminPin').value='';
+  document.getElementById('pinError').style.display='none';
+  pin?.classList.add('show');
+  setTimeout(()=>document.getElementById('adminPin')?.focus(),50);
+}
+function submitAdminPin(){
+  const value=document.getElementById('adminPin')?.value||'';
+  if(value==='9542'){
+    sessionStorage.setItem('dt_admin_auth','ok');
+    document.getElementById('pinModal')?.classList.remove('show');
+    document.getElementById('adminModal')?.classList.add('show');
+    updateAdmin();
+  }else{
+    document.getElementById('pinError').style.display='block';
+    document.getElementById('adminPin').value='';
+    document.getElementById('adminPin').focus();
   }
+}
+function closePin(){document.getElementById('pinModal')?.classList.remove('show')}
+function closeAdmin(){document.getElementById('adminModal')?.classList.remove('show');sessionStorage.removeItem('dt_admin_auth');}
 
-  function count() {
-    return cart.reduce((s, x) => s + x.qty, 0);
-  }
+const MENU_KEY='dt_menu_catalog_v4';
+let editMode=false;
+let editingId=null;
 
-  function showSection(id) {
-    const section = document.getElementById(id);
-    if (!section) return;
-
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    section.classList.add('active');
-    document.body.classList.add('category-open');
-
-    // Entramos realmente al submenu, arriba de la pantalla.
-    window.scrollTo({top:0, left:0, behavior:'smooth'});
-  }
-
-  function backHome() {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.body.classList.remove('category-open');
-    window.scrollTo({top:0, left:0, behavior:'smooth'});
-  }
-
-  function addProduct(product) {
-    const flavor = product.querySelector('.flavor')?.value || '';
-    const id = product.dataset.id + '|' + flavor;
-    const existing = cart.find(x => x.id === id);
-
-    if (existing) {
-      existing.qty++;
-    } else {
-      cart.push({
-        id,
-        name: product.dataset.name,
-        price: Number(product.dataset.price),
-        flavor,
-        qty: 1,
-        img: product.querySelector('img')?.src || ''
-      });
-    }
-    updateCart();
-  }
-
-  function changeQty(index, delta) {
-    if (!cart[index]) return;
-    cart[index].qty += delta;
-    if (cart[index].qty <= 0) cart.splice(index, 1);
-    updateCart();
-  }
-
-  function removeItem(index) {
-    if (cart[index]) cart.splice(index, 1);
-    updateCart();
-  }
-
-  function updateCart() {
-    const c = count();
-    const t = total();
-    const set = (id, value) => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = value;
+function menuEsc(v){
+  return String(v==null?'':v).replace(/[&<>"']/g,function(m){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m];
+  });
+}
+function menuRead(){
+  let saved=null;
+  try{saved=JSON.parse(localStorage.getItem(MENU_KEY)||'null')}catch(e){}
+  if(saved)return saved;
+  const d={};
+  document.querySelectorAll('.product[data-id]').forEach(function(p){
+    d[p.dataset.id]={
+      id:p.dataset.id,
+      name:p.dataset.name||p.querySelector('h3')?.textContent||'',
+      price:Number(p.dataset.price||0),
+      desc:p.querySelector('p')?.textContent||'',
+      img:p.querySelector('img')?.src||'',
+      flavors:Array.from(p.querySelectorAll('.flavor option')).map(function(o){return o.textContent.trim()}),
+      active:true,
+      section:p.closest('.section')?.id||''
     };
-    set('cartCount', c);
-    set('barTotal', money(t));
-    set('topTotal', money(t));
-    set('modalTotal', money(t));
-    renderCart();
+  });
+  localStorage.setItem(MENU_KEY,JSON.stringify(d));
+  return d;
+}
+function menuApplySaved(){
+  const d=menuRead();
+  let labels={
+    reposteria:'🍰 Repostería',
+    calientes:'☕ Bebidas calientes',
+    frappes:'🧋 Frappés y bebidas frías'
+  };
+  try{labels=Object.assign(labels,JSON.parse(localStorage.getItem('dt_menu_categories_v2')||'{}')||{});}catch(e){}
+
+  const home=document.getElementById('homeView');
+  const grid=document.querySelector('.categories');
+  const originalIds=new Set(['reposteria','calientes','frappes']);
+
+  // 1. Register every category created in the editor in the real main menu.
+  Object.keys(labels).forEach(function(id){
+    const safe=String(id).replace(/[^a-zA-Z0-9_-]/g,'-');
+    let sec=document.getElementById(safe);
+    if(!sec && home && home.parentElement){
+      sec=document.createElement('section');
+      sec.id=safe;
+      sec.className='section';
+      sec.innerHTML='<div class="category-head"><button class="back" data-action="home">← Categorías</button><button class="mini-cart" data-action="cart-open">🛒 Ver pedido</button></div><h2 class="section-title"></h2><div class="products"></div>';
+      home.parentElement.appendChild(sec);
+    }
+    if(sec){
+      sec.dataset.dynamicCategory=originalIds.has(id)?'false':'true';
+      const title=sec.querySelector('.section-title');
+      if(title)title.textContent=labels[id]||id;
+    }
+
+    if(grid){
+      let card=Array.from(grid.querySelectorAll('.cat[data-section]')).find(function(c){return c.dataset.section===id});
+      if(!card){
+        card=document.createElement('article');
+        card.className='cat';
+        card.dataset.section=id;
+        card.setAttribute('role','button');
+        card.tabIndex=0;
+        card.innerHTML='<div class="cat-body"><h3></h3><p>Productos de DolceTentazione.</p><button type="button">Ver productos</button></div>';
+        grid.appendChild(card);
+      }
+      const h=card.querySelector('h3');if(h)h.textContent=labels[id]||id;
+      const count=Object.values(d).filter(function(x){return x.section===id && x.active!==false}).length;
+      const p=card.querySelector('p');if(p)p.textContent=count+' producto'+(count===1?'':'s')+' disponibles.';
+      card.style.display='';
+    }
+  });
+
+  // 2. Remove category cards/sections that were deleted in the editor.
+  grid?.querySelectorAll('.cat[data-section]').forEach(function(card){
+    const id=card.dataset.section;
+    if(!labels[id] && !originalIds.has(id))card.remove();
+  });
+  document.querySelectorAll('main > .section[data-dynamic-category="true"]').forEach(function(sec){
+    if(!labels[sec.id])sec.remove();
+  });
+
+  // 3. Render every product—including future products—in the same real POS structure.
+  Object.keys(labels).forEach(function(id){
+    const safe=String(id).replace(/[^a-zA-Z0-9_-]/g,'-');
+    const sec=document.getElementById(safe);if(!sec)return;
+    const products=sec.querySelector('.products');if(!products)return;
+    const items=Object.values(d).filter(function(x){return x.section===id && x.active!==false});
+    const existing=Object.fromEntries(Array.from(products.querySelectorAll('.product[data-id]')).map(function(p){return [p.dataset.id,p]}));
+
+    items.forEach(function(x){
+      let p=existing[x.id];
+      if(!p){
+        p=document.createElement('div');
+        p.className='product';
+        products.appendChild(p);
+      }
+      p.dataset.id=x.id;
+      p.dataset.name=x.name||'';
+      p.dataset.price=Number(x.price||0);
+      p.dataset.active=x.active!==false?'true':'false';
+      p.innerHTML='';
+      const img=document.createElement('img');
+      img.src=x.img||'';img.alt=x.name||'';
+      if(!x.img)img.style.visibility='hidden';
+      img.onerror=function(){this.style.visibility='hidden'};
+      p.appendChild(img);
+      const wrap=document.createElement('div');
+      const h=document.createElement('h3');h.textContent=x.name||'';wrap.appendChild(h);
+      const desc=document.createElement('p');desc.textContent=x.desc||'';wrap.appendChild(desc);
+      if(Array.isArray(x.flavors)&&x.flavors.length){
+        const sel=document.createElement('select');sel.className='flavor';sel.setAttribute('aria-label','Sabor');
+        x.flavors.forEach(function(f){const o=document.createElement('option');o.textContent=f;sel.appendChild(o)});
+        wrap.appendChild(sel);
+      }
+      const price=document.createElement('span');price.className='price';price.textContent=money(Number(x.price||0));wrap.appendChild(price);
+      const actions=document.createElement('div');actions.className='product-actions';actions.innerHTML='<button class="add" data-action="add" type="button">+ Agregar</button>';wrap.appendChild(actions);
+      p.appendChild(wrap);
+      p.style.display=x.active===false?'none':'';
+    });
+
+    // Remove products that no longer exist or are hidden from the customer view.
+    products.querySelectorAll('.product[data-id]').forEach(function(p){
+      const x=d[p.dataset.id];
+      if(!x || x.section!==id || x.active===false)p.remove();
+    });
+  });
+}
+
+function renderMenuEditor(){
+  const box=document.getElementById('menuEditorList');if(!box)return;
+  const d=menuRead();
+  box.innerHTML=Object.values(d).map(function(x){
+    return '<div class="menu-editor-item" data-menu-id="'+menuEsc(x.id)+'">'+
+      '<div class="menu-editor-top"><img src="'+menuEsc(x.img)+'" alt=""><strong>'+menuEsc(x.name)+'</strong><span>'+(x.active===false?'🔴 Oculto':'🟢 Activo')+'</span></div>'+
+      '<div class="menu-editor-grid">'+
+      '<div><label>Nombre</label><input data-field="name" value="'+menuEsc(x.name)+'"></div>'+
+      '<div><label>Precio</label><input data-field="price" type="number" min="0" value="'+Number(x.price||0)+'"></div>'+
+      '<div class="full"><label>Descripción</label><input data-field="desc" value="'+menuEsc(x.desc||'')+'"></div>'+
+      '<div class="full"><label>Foto (URL)</label><input data-field="img" value="'+menuEsc(x.img||'')+'"></div>'+
+      '<div class="full"><label>Sabores (separados por coma)</label><input data-field="flavors" value="'+menuEsc((x.flavors||[]).join(', '))+'"></div>'+
+      '</div><div class="menu-editor-actions">'+
+      '<button type="button" class="menu-save" data-menu-save="'+menuEsc(x.id)+'">💾 Guardar</button>'+
+      '<button type="button" class="menu-toggle" data-menu-toggle="'+menuEsc(x.id)+'">'+(x.active===false?'🟢 Activar':'🔴 Desactivar')+'</button>'+
+      '</div></div>';
+  }).join('');
+}
+function menuSaveItem(id){
+  const row=document.querySelector('.menu-editor-item[data-menu-id="'+CSS.escape(id)+'"]');if(!row)return;
+  const d=menuRead(),x=d[id];if(!x)return;
+  x.name=row.querySelector('[data-field="name"]').value.trim()||x.name;
+  x.price=Number(row.querySelector('[data-field="price"]').value||0);
+  x.desc=row.querySelector('[data-field="desc"]').value.trim();
+  x.img=row.querySelector('[data-field="img"]').value.trim();
+  x.flavors=row.querySelector('[data-field="flavors"]').value.split(',').map(function(v){return v.trim()}).filter(Boolean);
+  d[id]=x;localStorage.setItem(MENU_KEY,JSON.stringify(d));menuApplySaved();closeAddProduct();
+}
+function menuToggleItem(id){
+  const d=menuRead(),x=d[id];if(!x)return;
+  x.active=x.active===false;d[id]=x;localStorage.setItem(MENU_KEY,JSON.stringify(d));menuApplySaved();renderMenuEditor();
+}
+function enterEditMode(){
+  editMode=true;
+  document.body.classList.add('edit-mode');
+  document.getElementById('adminModal')?.classList.remove('show');
+  window.scrollTo(0,0);
+}
+function exitEditMode(){
+  editMode=false;
+  editingId=null;
+  document.body.classList.remove('edit-mode');
+  document.getElementById('editProductModal')?.classList.remove('show');
+  document.getElementById('addProductModal')?.classList.remove('show');
+  sessionStorage.removeItem('dt_admin_auth');
+}
+function openProductEditor(id){
+  if(!editMode)return;
+  const d=menuRead(),x=d[id];if(!x)return;
+  editingId=id;
+  document.getElementById('editProductForm').innerHTML=
+    '<p class="menu-help">Editando <b>'+menuEsc(x.name)+'</b></p>'+
+    '<label>Nombre</label><input id="editName" value="'+menuEsc(x.name)+'">'+
+    '<label>Precio</label><input id="editPrice" type="number" min="0" value="'+Number(x.price||0)+'">'+
+    '<label>Descripción</label><input id="editDesc" value="'+menuEsc(x.desc||'')+'">'+
+    '<label>Foto (URL)</label><input id="editImg" value="'+menuEsc(x.img||'')+'">'+
+    '<label>Sabores, separados por coma</label><input id="editFlavors" value="'+menuEsc((x.flavors||[]).join(', '))+'">'+
+    '<div class="menu-editor-actions"><button type="button" class="menu-save" data-action="edit-product-save">💾 Guardar</button><button type="button" class="menu-toggle" data-action="edit-product-close">Cancelar</button></div>';
+  document.getElementById('editProductModal').classList.add('show');
+}
+function saveProductEditor(){
+  if(!editingId)return;
+  const d=menuRead(),x=d[editingId];if(!x)return;
+  x.name=document.getElementById('editName').value.trim()||x.name;
+  x.price=Number(document.getElementById('editPrice').value||0);
+  x.desc=document.getElementById('editDesc').value.trim();
+  x.img=document.getElementById('editImg').value.trim();
+  x.flavors=document.getElementById('editFlavors').value.split(',').map(function(v){return v.trim()}).filter(Boolean);
+  d[editingId]=x;localStorage.setItem(MENU_KEY,JSON.stringify(d));menuApplySaved();
+  document.getElementById('editProductModal').classList.remove('show');editingId=null;
+}
+function openAddProduct(section){
+  if(!editMode)return;
+  const sel=document.getElementById('newProductCategory');
+  if(sel)sel.value=section;
+  document.getElementById('addProductModal')?.classList.add('show');
+}
+function closeAddProduct(){
+  document.getElementById('addProductModal')?.classList.remove('show');
+}
+function addNewProduct(){
+  const name=document.getElementById('newProductName')?.value.trim();
+  const price=Number(document.getElementById('newProductPrice')?.value||0);
+  const section=document.getElementById('newProductCategory')?.value;
+  const img=document.getElementById('newProductImg')?.value.trim();
+  const desc=document.getElementById('newProductDesc')?.value.trim();
+  const flavors=(document.getElementById('newProductFlavors')?.value||'').split(',').map(function(v){return v.trim()}).filter(Boolean);
+  if(!name||price<=0){alert('Escribe nombre y precio.');return;}
+  const d=menuRead(),id='custom-'+Date.now();
+  d[id]={id,name,price,section,img,desc,flavors,active:true};
+  localStorage.setItem(MENU_KEY,JSON.stringify(d));menuApplySaved();renderMenuEditor();
+  ['newProductName','newProductPrice','newProductImg','newProductDesc','newProductFlavors'].forEach(function(k){const el=document.getElementById(k);if(el)el.value='';});
+  alert('Producto agregado correctamente.');
+}
+
+function updateAdmin(){
+ const sales=getSales(),clients=Object.values(getClients()),today=new Date().toDateString(),ts=sales.filter(x=>new Date(x.date).toDateString()===today),sum=ts.reduce((a,x)=>a+x.total,0);
+ document.getElementById('admSales').textContent=money(sum);document.getElementById('admOrders').textContent=ts.length;document.getElementById('admClients').textContent=clients.length;document.getElementById('admTicket').textContent=money(ts.length?sum/ts.length:0);
+ document.getElementById('salesTable').innerHTML=sales.slice().reverse().map(x=>`<tr><td>${new Date(x.date).toLocaleString('es-MX')}</td><td>${x.name}<br>${x.phone||''}</td><td>${x.items.map(i=>`${i.qty}× ${i.name}${i.flavor?' · '+i.flavor:''}`).join('<br>')}</td><td>${x.delivery}</td><td>${x.payment}</td><td><b>${money(x.total)}</b></td></tr>`).join('')||'<tr><td colspan="6">Aún no hay ventas.</td></tr>';
+ const clientRows=clients.sort((a,b)=>b.totalSpent-a.totalSpent);
+ document.getElementById('clientsTable').innerHTML=clientRows.map(x=>`<tr><td>${x.name}</td><td>${x.phone||'—'}</td><td>${x.purchases}</td><td>${money(x.totalSpent)}</td><td>${x.lastPurchase?new Date(x.lastPurchase).toLocaleString('es-MX'):'—'}</td></tr>`).join('')||'<tr><td colspan="5">Aún no hay clientes.</td></tr>';
+ const f={};sales.forEach(x=>x.items.forEach(i=>{if(i.flavor)f[i.flavor]=(f[i.flavor]||0)+i.qty}));
+ const fh=Object.entries(f).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="flavor-row"><span>${k}</span><b>${v}</b></div>`).join('')||'<div class="empty">Aún no hay sabores registrados.</div>';
+ document.getElementById('topFlavors').innerHTML=fh;document.getElementById('flavorBreakdown').innerHTML=fh;updateOpenState();
+}
+function exportSales(){
+ const sales=getSales();if(!sales.length){alert('No hay ventas para exportar.');return}
+ const rows=[['Pedido','Fecha','Cliente','Teléfono','Producto','Sabor','Cantidad','Precio','Entrega','Costo entrega','Pago','Total']];
+ sales.forEach(x=>x.items.forEach(i=>rows.push([x.id,new Date(x.date).toLocaleString('es-MX'),x.name,x.phone,i.name,i.flavor||'',i.qty,i.price,x.delivery,x.deliveryCost,x.payment,x.total])));
+ const csv='\ufeff'+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n'),blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='dolceTentazione_ventas.csv';a.click();URL.revokeObjectURL(a.href);
+}
+
+document.addEventListener('click',e=>{
+ const cat=e.target.closest('.cat[data-section]');if(cat){showSection(cat.dataset.section);return}
+ const a=e.target.closest('[data-action]');if(a)switch(a.dataset.action){
+ case'home':backHome();break;case'cart-open':openCart();break;case'cart-close':closeCart();break;case'overlay-close':if(e.target.id==='cartModal')closeCart();break;case'add':addProduct(a.closest('.product'));break;case'qty-minus':changeQty(+a.dataset.index,-1);break;case'qty-plus':changeQty(+a.dataset.index,1);break;case'remove':removeItem(+a.dataset.index);break;case'whatsapp':sendWhatsApp();break;case'admin-open':openAdmin();break;case'admin-close':closeAdmin();break;case'pin-close':closePin();break;case'pin-submit':submitAdminPin();break;case'pin-overlay-close':if(e.target.id==='pinModal')closePin();break;case'admin-overlay-close':if(e.target.id==='adminModal')closeAdmin();break;
+ }
+ const tab=e.target.closest('[data-admin-tab]');if(tab){document.querySelectorAll('.admin-tab').forEach(x=>x.classList.toggle('active',x===tab));document.querySelectorAll('.admin-view').forEach(x=>x.classList.remove('active'));document.getElementById('admin-'+tab.dataset.adminTab)?.classList.add('active')}
+ const aa=e.target.closest('[data-admin-action]');if(aa){if(aa.dataset.adminAction==='open-orders')setOrdersOpen(true);if(aa.dataset.adminAction==='close-orders')setOrdersOpen(false);if(aa.dataset.adminAction==='export-sales')exportSales()}
+});
+document.addEventListener('keydown',e=>{
+ if(e.target.id==='adminPin'&&e.key==='Enter'){e.preventDefault();submitAdminPin()}
+});
+document.addEventListener('change',e=>{if(e.target.id==='payment')togglePayment();if(e.target.name==='delivery')updateCart()});
+document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.cat[data-section]')){e.preventDefault();showSection(e.target.dataset.section)}});
+document.body.classList.remove('category-open');document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));updateOpenState();updateCart();
+
+/* Public bridge: editor -> ORIGINAL POS catalog */
+window.DolcePOSCatalog={
+  read:function(){return menuRead();},
+  apply:function(){menuApplySaved();},
+  add:function(){return addNewProduct();},
+  closeAdd:function(){return closeAddProduct();}
+};
+})();
+
+
+setTimeout(function(){try{if(window.DolcePOSCatalog?.apply)window.DolcePOSCatalog.apply();}catch(e){console.error('Error sincronizando catálogo inicial',e);}},0);
+/* Catalog editor: isolated listener so existing POS behavior remains untouched. */
+document.addEventListener('click',function(e){
+  const tab=e.target.closest('[data-admin-tab="menus"]');
+  if(tab){
+    e.preventDefault();
+    document.querySelectorAll('.admin-tab').forEach(function(b){b.classList.remove('active')});
+    document.querySelectorAll('.admin-view').forEach(function(v){v.classList.remove('active')});
+    tab.classList.add('active');
+    document.getElementById('admin-menus')?.classList.add('active');
+    return;
   }
 
-  function renderCart() {
-    const box = document.getElementById('cartItems');
-    if (!box) return;
+  const adminAction=e.target.closest('[data-admin-action]');
+  if(adminAction){
+    const a=adminAction.dataset.adminAction;
+    
+    
+  }
 
-    if (!cart.length) {
-      box.innerHTML = '<div class="empty">Tu pedido está vacío.<br>Elige algo delicioso 💗</div>';
+  const save=e.target.closest('[data-menu-save]');
+  if(save){e.preventDefault();menuSaveItem(save.dataset.menuSave);return;}
+  const toggle=e.target.closest('[data-menu-toggle]');
+  if(toggle){e.preventDefault();menuToggleItem(toggle.dataset.menuToggle);return;}
+
+  const add=e.target.closest('[data-action="add-product-save"]');
+  if(add){e.preventDefault();addNewProduct();return;}
+
+  if(e.target.closest('[data-action="edit-mode-off"]')){exitEditMode();return;}
+  if(e.target.closest('[data-action="edit-product-close"]')){document.getElementById('editProductModal')?.classList.remove('show');editingId=null;return;}
+  if(e.target.closest('[data-action="edit-product-save"]')){saveProductEditor();return;}
+
+  if(editMode){
+    const p=e.target.closest('.product[data-id]');
+    /* Do not intercept Add buttons, quantity controls or flavor selectors. */
+    if(p && !e.target.closest('button,select,input,textarea,a')){
+      e.preventDefault();
+      openProductEditor(p.dataset.id);
       return;
     }
+  }
+});
 
-    box.innerHTML = cart.map((x, i) => `
-      <div class="cart-item">
-        <img src="${x.img}" alt="">
-        <div>
-          <b>${x.name}</b>
-          ${x.flavor ? `<div class="small">${x.flavor}</div>` : ''}
-          <div>${money(x.price)}</div>
-        </div>
-        <div class="qty">
-          <button type="button" data-action="qty-minus" data-index="${i}">−</button>
-          <b>${x.qty}</b>
-          <button type="button" data-action="qty-plus" data-index="${i}">+</button>
-          <button type="button" data-action="remove" data-index="${i}" style="border:0;background:none">🗑️</button>
+document.addEventListener('click',function(e){
+  if(editMode){
+    const p=e.target.closest('.product[data-id]');
+    if(p && !e.target.closest('button,select,input,textarea,a')){
+      e.preventDefault();
+      e.stopPropagation();
+      openProductEditor(p.dataset.id);
+      return;
+    }
+  }
+}, true);
+
+// paymentInfoV7
+document.addEventListener('change',function(e){
+  if(e.target && (e.target.id==='paymentMethod' || e.target.name==='payment')){
+    const info=document.getElementById('paymentInfo');
+    if(info) info.style.display=(e.target.value||'').toLowerCase().includes('transfer')?'block':'none';
+  }
+});
+document.addEventListener('DOMContentLoaded',function(){
+  const editBtn=document.getElementById('activateEditBtn');
+  if(editBtn){
+    editBtn.addEventListener('click',function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      enterEditMode();
+    });
+  }
+
+  menuApplySaved();
+});
+
+</script>
+
+<div id="dtEditorWindow" aria-hidden="true">
+  <div class="dt-editor-top">
+    <button class="dt-editor-close" id="dtEditorClose" type="button">×</button>
+    <div class="dt-editor-brand">DolceTentazione</div>
+    <div class="dt-editor-sub">Editor de catálogo · menú real de DolceTentazione</div>
+  </div>
+  <div class="dt-editor-body">
+    <div class="dt-note">✏️ Estás trabajando en una ventana de administración separada. Los cambios se guardan en el catálogo de DolceTentazione y se aplican al menú real al publicar.</div>
+    <div class="dt-editor-actions">
+      <button class="dt-btn dt-primary" id="dtNewCategory" type="button">📁 Nueva categoría</button>
+      <button class="dt-btn dt-secondary" id="dtRefresh" type="button">↻ Actualizar</button>
+    </div>
+    <h3 style="margin:14px 0 7px;color:#45353b">🍰 Menús</h3>
+    <div id="dtEditorCategories" class="dt-cats"></div>
+    <div id="dtEditorCategoryManagement" class="dt-category-management"></div>
+    <div class="dt-category-note">Las tres categorías originales del POS no se eliminan. Las nuevas categorías sí pueden eliminarse.</div>
+    <div id="dtEditorContent"></div>
+  </div>
+</div>
+
+
+<script>
+(function(){
+  'use strict';
+  const W=document.getElementById('dtEditorWindow');
+  const catsEl=document.getElementById('dtEditorCategories');
+  const contentEl=document.getElementById('dtEditorContent');
+  const CAT_KEY='dt_menu_categories_v2';
+  const MENU_KEY_LOCAL='dt_menu_catalog_v4';
+  let labels={
+    reposteria:'🍰 Repostería',
+    calientes:'☕ Bebidas calientes',
+    frappes:'🧋 Frappés y bebidas frías'
+  };
+  let catalog={};
+  let selected='reposteria';
+  let editing=null;
+  let draft=null;
+
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+  function load(){
+    try{labels=Object.assign(labels,JSON.parse(localStorage.getItem(CAT_KEY)||'{}')||{});}catch(e){}
+    // Always retain the three original POS menus.
+    labels.reposteria=labels.reposteria||'🍰 Repostería';
+    labels.calientes=labels.calientes||'☕ Bebidas calientes';
+    labels.frappes=labels.frappes||'🧋 Frappés y bebidas frías';
+    try{
+      if(window.DolcePOSCatalog?.read) catalog=window.DolcePOSCatalog.read()||{};
+      else catalog=JSON.parse(localStorage.getItem(MENU_KEY_LOCAL)||'{}')||{};
+    }catch(e){catalog={};}
+    Object.values(catalog).forEach(x=>{
+      if(x.section==='reposteria')labels.reposteria=labels.reposteria||'🍰 Repostería';
+      else if(x.section==='calientes')labels.calientes=labels.calientes||'☕ Bebidas calientes';
+      else if(x.section==='frappes')labels.frappes=labels.frappes||'🧋 Frappés y bebidas frías';
+      else if(x.section && !labels[x.section])labels[x.section]=x.section;
+    });
+  }
+  function seedOriginalPOSProducts(){
+    // The stable POS already contains the complete original menu.
+    // Use it as the authoritative seed only for products missing from the
+    // editor catalog. Existing edited records are never overwritten.
+    const domProducts=document.querySelectorAll('.product[data-id]');
+    let changed=false;
+    domProducts.forEach(function(p){
+      const id=p.dataset.id;
+      if(!id)return;
+      const section=p.closest('.section')?.id||'';
+      if(!section)return;
+      if(catalog[id])return;
+      const flavors=Array.from(p.querySelectorAll('select option')).map(o=>o.textContent.trim()).filter(Boolean);
+      catalog[id]={
+        id:id,
+        name:p.dataset.name||p.querySelector('h3')?.textContent.trim()||'',
+        price:Number(p.dataset.price||p.querySelector('.price')?.textContent.replace(/[^0-9.]/g,'')||0),
+        img:p.querySelector('img')?.getAttribute('src')||'',
+        desc:p.querySelector('p')?.textContent.trim()||'',
+        flavors:flavors,
+        active:true,
+        section:section
+      };
+      changed=true;
+    });
+    if(changed)localStorage.setItem(MENU_KEY_LOCAL,JSON.stringify(catalog));
+    return changed;
+  }
+  const ORIGINAL_CATS=new Set(['reposteria','calientes','frappes']);
+  function renderCategoryManagement(){
+    const el=document.getElementById('dtEditorCategoryManagement');
+    if(!el)return;
+    const custom=sections().filter(id=>!ORIGINAL_CATS.has(id));
+    el.innerHTML=custom.map(id=>`<div class="dt-category-chip"><span>${esc(labels[id]||id)}</span><button type="button" data-delete-category="${esc(id)}" title="Eliminar categoría">×</button></div>`).join('');
+  }
+  function deleteCategory(id){
+    if(ORIGINAL_CATS.has(id)){alert('Las categorías originales del POS no se pueden eliminar.');return;}
+    const name=labels[id]||id;
+    const products=Object.values(catalog).filter(x=>x.section===id);
+    const msg=products.length
+      ? `La categoría "${name}" contiene ${products.length} producto(s).\\n\\nSe eliminarán la categoría y esos productos del catálogo.\\n\\n¿Deseas continuar?`
+      : `¿Eliminar la categoría "${name}"?`;
+    if(!confirm(msg))return;
+    products.forEach(x=>delete catalog[x.id]);
+    delete labels[id];
+    localStorage.setItem(MENU_KEY_LOCAL,JSON.stringify(catalog));
+    localStorage.setItem(CAT_KEY,JSON.stringify(labels));
+    try{localStorage.setItem('dt_menu_categories_v2',JSON.stringify(labels));}catch(e){}
+    if(typeof window.DolcePOSCatalog?.apply==='function')window.DolcePOSCatalog.apply();
+    if(selected===id)selected='reposteria';
+    if(typeof window.dtRefreshPOS==='function')window.dtRefreshPOS();
+    render();
+  }
+  function sections(){return [...new Set([...Object.keys(labels),...Object.values(catalog).map(x=>x.section).filter(Boolean)])];}
+  function open(){
+    try{if(window.DolcePOSCatalog?.read)window.DolcePOSCatalog.read();}catch(e){}
+    load();
+    seedOriginalPOSProducts();
+    load();
+    if(typeof window.dtRefreshPOS==='function')window.dtRefreshPOS();
+    selected=sections().includes(selected)?selected:sections()[0]||'reposteria';
+    W.classList.add('open');W.setAttribute('aria-hidden','false');render();
+  }
+  function close(){
+    W.classList.remove('open');W.setAttribute('aria-hidden','true');editing=null;draft=null;
+    // Security requirement: leaving the editor invalidates admin access.
+    try{sessionStorage.removeItem('dt_admin_auth');}catch(e){}
+  }
+  function render(){
+    load();
+    const totalProducts=Object.keys(catalog).length;
+    const oldStatus=document.getElementById('dtEditorStatus'); if(oldStatus)oldStatus.remove();
+    catsEl.insertAdjacentHTML('beforebegin', '<div id="dtEditorStatus" class="dt-editor-sub" style="margin:8px 0 12px">📦 '+totalProducts+' productos en el catálogo</div>');
+    const menuSections=sections();
+    catsEl.innerHTML=menuSections.map(id=>{
+      const count=Object.values(catalog).filter(x=>x.section===id).length;
+      return `<button type="button" class="dt-cat ${id===selected?'active':''}" data-cat="${esc(id)}">${esc(labels[id]||id)} · ${count}</button>`;
+    }).join('');
+    renderCategoryManagement();
+    const items=Object.values(catalog).filter(x=>x.section===selected);
+    contentEl.innerHTML=`
+      <div class="dt-editor-actions">
+        <button class="dt-btn dt-primary" id="dtAddProduct" type="button">➕ Agregar producto a este menú</button>
+      </div>
+      ${items.length?items.map(card).join(''):`<div class="dt-empty">Esta categoría está vacía.<br><b>Agrega aquí su primer producto.</b></div>`}
+    `;
+  }
+  function card(x){
+    const active=x.active!==false;
+    return `<article class="dt-card" data-id="${esc(x.id)}">
+      <img src="${esc(x.img||'')}" alt="${esc(x.name||'')}" onerror="this.style.visibility='hidden'">
+      <div class="dt-card-main">
+        <h3>${esc(x.name||'Sin nombre')}</h3>
+        <div class="dt-price">$${Number(x.price||0).toFixed(0)}</div>
+        <div class="dt-meta">${active?'🟢 Disponible':'🔴 No disponible'}${x.flavors?.length?' · '+esc(x.flavors.join(', ')):''}</div>
+        <div class="dt-card-actions">
+          <button class="dt-btn dt-primary" type="button" data-edit="${esc(x.id)}">✏️ Editar</button>
+          <button class="dt-btn dt-secondary" type="button" data-toggle="${esc(x.id)}">${active?'🔴 No disponible':'🟢 Disponible'}</button>
+          <button class="dt-btn dt-danger" type="button" data-delete="${esc(x.id)}">🗑️ Eliminar</button>
         </div>
       </div>
-    `).join('');
+    </article>`;
   }
-
-  function openCart() {
-    document.getElementById('cartModal')?.classList.add('show');
-    updateCart();
+  function form(x,isNew){
+    if(isNew)x=Object.assign({},x,{section:selected||'reposteria'});
+    return `<div class="dt-form">
+      <h2>${isNew?'➕ Nuevo producto':'✏️ Editar producto'}</h2>
+      <label>Categoría</label>
+      <select id="dtFSection" ${isNew?'disabled':''}>${sections().map(id=>`<option value="${esc(id)}" ${id===(x.section||selected)?'selected':''}>${esc(labels[id]||id)}</option>`).join('')}</select>
+      ${isNew?`<div class="dt-meta">📍 Se agregará al final de: <strong>${esc(labels[x.section]||x.section)}</strong></div>`:''}
+      <label>Nombre</label><input id="dtFName" value="${esc(x.name||'')}" placeholder="Ej. Cheesecake">
+      <label>Precio</label><input id="dtFPrice" type="number" min="0" value="${Number(x.price||0)}">
+      <label>Foto del producto</label>
+      <div class="dt-photo-row">
+        <div>
+          <input id="dtFImg" value="${esc(x.img||'')}" placeholder="https://...">
+          <label class="dt-file">📷 Seleccionar foto de mi galería
+            <input id="dtFFile" type="file" accept="image/*">
+          </label>
+          <div class="dt-meta">La foto se comprime automáticamente para no ocupar demasiado espacio.</div>
+        </div>
+        <img id="dtFPreview" class="dt-photo-preview" src="${esc(x.img||'')}" alt="Vista previa">
+      </div>
+      <label>Descripción</label><textarea id="dtFDesc">${esc(x.desc||'')}</textarea>
+      <label>Sabores (separados por coma)</label><input id="dtFFlavors" value="${esc((x.flavors||[]).join(', '))}" placeholder="Fresa, Mazapán, Oreo">
+      <div class="dt-form-actions">
+        <button class="dt-btn dt-primary" id="dtSave" type="button">💾 Guardar cambios</button>
+        <button class="dt-btn dt-secondary" id="dtCancel" type="button">Cancelar</button>
+      </div>
+    </div>`;
   }
-
-  function closeCart() {
-    document.getElementById('cartModal')?.classList.remove('show');
+  function showForm(x,isNew){
+    editing=isNew?null:x.id;draft=Object.assign({},x);contentEl.innerHTML=form(x,isNew);
+    const file=document.getElementById('dtFFile');
+    const url=document.getElementById('dtFImg');
+    const preview=document.getElementById('dtFPreview');
+    if(url&&preview)url.addEventListener('input',()=>preview.src=url.value||'');
+    if(file)file.addEventListener('change',async function(){
+      const f=file.files&&file.files[0]; if(!f)return;
+      try{
+        const data=await compressImage(f,900,0.78);
+        if(url)url.value=data;
+        if(preview)preview.src=data;
+      }catch(err){alert('No se pudo cargar la foto.');console.error(err);}
+    });
   }
-
-  function togglePayment() {
-    const payment = document.getElementById('payment');
-    const info = document.getElementById('paymentInfo');
-    if (payment && info) info.classList.toggle('show', payment.value === 'Transferencia');
+  function compressImage(file,maxSide,quality){
+    return new Promise((resolve,reject)=>{
+      const reader=new FileReader();
+      reader.onerror=reject;
+      reader.onload=function(){
+        const img=new Image();
+        img.onerror=reject;
+        img.onload=function(){
+          const scale=Math.min(1,maxSide/Math.max(img.width,img.height));
+          const c=document.createElement('canvas');
+          c.width=Math.max(1,Math.round(img.width*scale));
+          c.height=Math.max(1,Math.round(img.height*scale));
+          c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+          resolve(c.toDataURL('image/jpeg',quality));
+        };
+        img.src=reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
   }
-
-  function sendWhatsApp() {
-    if (!cart.length) {
-      alert('Agrega al menos un producto a tu pedido.');
-      return;
-    }
-
-    const name = document.getElementById('customerName')?.value.trim() || 'Cliente';
-    const payment = document.getElementById('payment')?.value || 'Efectivo';
-    const notes = document.getElementById('notes')?.value.trim() || '';
-
-    const lines = cart.map(x =>
-      `• ${x.qty} x ${x.name}${x.flavor ? ' (' + x.flavor + ')' : ''} — ${money(x.price * x.qty)}`
-    ).join('\n');
-
-    let msg =
-      `Hola DolceTentazione 💗\n\n` +
-      `Quiero hacer este pedido:\n${lines}\n\n` +
-      `Total: ${money(total())}\n` +
-      `Nombre: ${name}\n` +
-      `Forma de pago: ${payment}`;
-
-    if (notes) msg += `\nNotas: ${notes}`;
-
-    window.open(
-      'https://wa.me/525532699350?text=' + encodeURIComponent(msg),
-      '_blank'
-    );
+  function saveForm(){
+    const id=editing||('custom-'+Date.now());
+    catalog[id]={
+      id,
+      section:document.getElementById('dtFSection').value || selected || 'reposteria',
+      name:document.getElementById('dtFName').value.trim(),
+      price:Number(document.getElementById('dtFPrice').value||0),
+      img:document.getElementById('dtFImg').value.trim(),
+      desc:document.getElementById('dtFDesc').value.trim(),
+      flavors:document.getElementById('dtFFlavors').value.split(',').map(x=>x.trim()).filter(Boolean),
+      active:editing?catalog[id].active!==false:true
+    };
+    if(!catalog[id].name || catalog[id].price<0){alert('Completa nombre y precio.');return;}
+    localStorage.setItem(MENU_KEY_LOCAL,JSON.stringify(catalog));
+    localStorage.setItem(CAT_KEY,JSON.stringify(labels));
+    if(typeof window.DolcePOSCatalog?.apply==='function')window.DolcePOSCatalog.apply();
+    if(typeof window.dtEnsureCategory==='function')window.dtEnsureCategory(catalog[id].section,labels[catalog[id].section]||catalog[id].section);
+    selected=catalog[id].section;
+    editing=null;draft=null;
+    render();
+    // Refresh the real POS immediately from the same catalog.
+    if(window.DolcePOSCatalog?.apply)window.DolcePOSCatalog.apply();
+    if(typeof window.dtRefreshPOS==='function')window.dtRefreshPOS();
   }
-
-  document.addEventListener('click', event => {
-    const category = event.target.closest('.cat[data-section]');
-    if (category) {
-      showSection(category.dataset.section);
-      return;
-    }
-
-    const actionEl = event.target.closest('[data-action]');
-    if (!actionEl) return;
-
-    const action = actionEl.dataset.action;
-
-    if (action === 'section') showSection(actionEl.dataset.section);
-    else if (action === 'home') backHome();
-    else if (action === 'cart-open') openCart();
-    else if (action === 'cart-close') closeCart();
-    else if (action === 'overlay-close' && event.target.id === 'cartModal') closeCart();
-    else if (action === 'add') addProduct(actionEl.closest('.product'));
-    else if (action === 'qty-minus') changeQty(Number(actionEl.dataset.index), -1);
-    else if (action === 'qty-plus') changeQty(Number(actionEl.dataset.index), 1);
-    else if (action === 'remove') removeItem(Number(actionEl.dataset.index));
-    else if (action === 'whatsapp') sendWhatsApp();
+  function addCategory(){
+    const name=prompt('Nombre de la nueva categoría:');
+    if(!name)return;
+    const clean=name.trim();if(!clean)return;
+    const id='cat-'+Date.now();
+    labels[id]=clean;
+    localStorage.setItem(CAT_KEY,JSON.stringify(labels));
+    if(typeof window.DolcePOSCatalog?.apply==='function')window.DolcePOSCatalog.apply();
+    if(typeof window.dtEnsureCategory==='function')window.dtEnsureCategory(id,clean);
+    if(typeof window.dtRefreshPOS==='function')window.dtRefreshPOS();
+    selected=id;render();
+    alert('Categoría creada. Ya está disponible en el editor y en el menú real. Ahora puedes agregar productos a este menú.');
+  }
+  W.addEventListener('click',function(e){
+    const delCat=e.target.closest('[data-delete-category]');
+    if(delCat){e.preventDefault();e.stopPropagation();deleteCategory(delCat.dataset.deleteCategory);return;}
+    const cat=e.target.closest('[data-cat]');if(cat){selected=cat.dataset.cat;render();return;}
+    const edit=e.target.closest('[data-edit]');if(edit){const x=catalog[edit.dataset.edit];if(x)showForm(x,false);return;}
+    const tog=e.target.closest('[data-toggle]');if(tog){const x=catalog[tog.dataset.toggle];if(x){x.active=x.active===false;localStorage.setItem(MENU_KEY_LOCAL,JSON.stringify(catalog));render();if(window.DolcePOSCatalog?.apply)window.DolcePOSCatalog.apply();
+    if(typeof window.dtRefreshPOS==='function')window.dtRefreshPOS();}return;}
+    const del=e.target.closest('[data-delete]');if(del){if(confirm('¿Eliminar este producto?')){delete catalog[del.dataset.delete];localStorage.setItem(MENU_KEY_LOCAL,JSON.stringify(catalog));render();if(window.DolcePOSCatalog?.apply)window.DolcePOSCatalog.apply();
+    if(typeof window.dtRefreshPOS==='function')window.dtRefreshPOS();}return;}
+    if(e.target.id==='dtAddProduct'){showForm({section:selected,active:true},true);return;}
+    if(e.target.id==='dtSave'){saveForm();return;}
+    if(e.target.id==='dtCancel'){render();return;}
   });
+  document.getElementById('dtNewCategory').addEventListener('click',addCategory);
+  document.getElementById('dtRefresh').addEventListener('click',render);
+  document.getElementById('dtEditorClose').addEventListener('click',close);
 
-  document.addEventListener('change', event => {
-    if (event.target.id === 'payment') togglePayment();
-  });
+  window.DolceEditorV2={open,close,render};
+})();
+</script>
 
-  document.addEventListener('keydown', event => {
-    if ((event.key === 'Enter' || event.key === ' ') &&
-        event.target.matches('.cat[data-section]')) {
-      event.preventDefault();
-      showSection(event.target.dataset.section);
+
+<script>
+(function(){
+  window.dtEnsureCategory=function(id,label){
+    try{
+      const safe=String(id).replace(/[^a-zA-Z0-9_-]/g,'-');
+      const original=['reposteria','calientes','frappes'];
+      let sec=document.getElementById(safe);
+      const main=document.querySelector('main');
+
+      // Product section
+      if(!sec){
+        sec=document.createElement('section');
+        sec.id=safe;
+        sec.className='section';
+        sec.innerHTML='<div class="category-head"><button class="back" data-action="home">← Categorías</button><button class="mini-cart" data-action="cart-open">🛒 Ver pedido</button></div><h2 class="section-title"></h2><div class="products"></div>';
+        if(main)main.appendChild(sec);
+      }
+      const title=sec.querySelector('.section-title');
+      if(title)title.textContent=label;
+
+      // Main category card. Custom categories must be visible on the
+      // principal category screen, not only as hidden product sections.
+      const catGrid=document.querySelector('.categories');
+      if(catGrid){
+        let card=Array.from(catGrid.querySelectorAll('.cat[data-section]'))
+          .find(c=>c.dataset.section===safe);
+
+        if(!card){
+          card=document.createElement('article');
+          card.className='cat';
+          card.dataset.section=safe;
+          card.setAttribute('role','button');
+          card.tabIndex=0;
+          card.innerHTML='<div class="cat-body"><h3></h3><p>Productos de DolceTentazione.</p><button type="button">Ver productos</button></div>';
+
+          // Put new categories after the original POS categories,
+          // preserving the existing order of the original three.
+          catGrid.appendChild(card);
+
+          const openCategory=function(ev){
+            ev.preventDefault();
+            ev.stopPropagation();
+            document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+            const target=document.getElementById(safe);
+            if(target)target.classList.add('active');
+            window.scrollTo({top:0,behavior:'smooth'});
+          };
+          card.addEventListener('click',openCategory);
+          card.addEventListener('keydown',function(ev){
+            if(ev.key==='Enter'||ev.key===' '){openCategory(ev);}
+          });
+        }
+        const h=card.querySelector('h3');
+        if(h)h.textContent=label;
+        card.style.display='';
+      }
+      return sec;
+    }catch(e){
+      console.error('dtEnsureCategory',e);
+      return null;
     }
-  });
+  };
 
-  document.body.classList.remove('category-open');
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  updateCart();
+  function dtEscHtml(v){
+    return String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+  }
+  function dtProductCard(x){
+    const flavors=Array.isArray(x.flavors)?x.flavors.filter(Boolean):[];
+    const select=flavors.length
+      ? `<select class="flavor">${flavors.map(f=>`<option>${dtEscHtml(f)}</option>`).join('')}</select>`
+      : '';
+    return `<div class="product" data-id="${dtEscHtml(x.id)}" data-name="${dtEscHtml(x.name)}" data-price="${Number(x.price||0)}">
+      <img src="${dtEscHtml(x.img||'')}" alt="${dtEscHtml(x.name||'')}" onerror="this.style.visibility='hidden'">
+      <div><h3>${dtEscHtml(x.name||'')}</h3><p>${dtEscHtml(x.desc||'')}</p>${select}<span class="price">$${Number(x.price||0)}</span><div class="product-actions"><button class="add" data-action="add">+ Agregar</button></div></div>
+    </div>`;
+  }
+  window.dtRefreshPOS=function(){
+    try{
+      const d=JSON.parse(localStorage.getItem('dt_menu_catalog_v4')||'{}');
+      const labs=Object.assign({
+        reposteria:'🍰 Repostería',
+        calientes:'☕ Bebidas calientes',
+        frappes:'🧋 Frappés y bebidas frías'
+      },JSON.parse(localStorage.getItem('dt_menu_categories_v2')||'{}')||{});
+      localStorage.setItem('dt_menu_categories_v2',JSON.stringify(labs));
+
+      // Create every category in the correct POS location.
+      Object.keys(labs).forEach(function(id){window.dtEnsureCategory(id,labs[id]);});
+
+      // Rebuild each category's product list from the editor catalog.
+      Object.keys(labs).forEach(function(id){
+        const sec=document.getElementById(String(id).replace(/[^a-zA-Z0-9_-]/g,'-'));
+        if(!sec)return;
+        const products=sec.querySelector('.products');
+        if(!products)return;
+        const items=Object.values(d).filter(x=>x.section===id && x.active!==false);
+        products.innerHTML=items.map(dtProductCard).join('');
+      });
+
+      // Hide deleted custom category cards/sections that are no longer in labels.
+      document.querySelectorAll('.categories .cat[data-section]').forEach(function(card){
+        if(!labs[card.dataset.section] && !['reposteria','calientes','frappes'].includes(card.dataset.section))card.remove();
+      });
+      // Re-ensure every category has a visible card on the main screen.
+      Object.keys(labs).forEach(function(id){
+        window.dtEnsureCategory(id,labs[id]);
+      });
+      document.querySelectorAll('main > section.section').forEach(function(sec){
+        if(!labs[sec.id] && !['reposteria','calientes','frappes'].includes(sec.id))sec.remove();
+      });
+    }catch(e){console.error(e);}
+  };
+})();
+</script>
+
+
+<script>
+(function(){
+  document.addEventListener('click',function(e){
+    const tab=e.target.closest('[data-admin-tab="menus"]');
+    if(tab){
+      setTimeout(function(){
+        const b=document.getElementById('activateEditBtn');
+        if(b && !b.__dtEditorBound){
+          b.__dtEditorBound=true;
+          b.addEventListener('click',function(ev){
+            ev.preventDefault();ev.stopPropagation();
+            try{
+              if(typeof window.DolceEditorV2?.open==='function')window.DolceEditorV2.open();
+            }catch(err){alert('No se pudo abrir el editor.');console.error(err);}
+          });
+        }
+      },0);
+    }
+  },true);
+})();
+</script>
+
+
+<script>
+(function(){
+  document.addEventListener('input',function(e){
+    if(e.target.id!=='clientSearch')return;
+    const q=e.target.value.trim().toLowerCase();
+    let clients=[];
+    try{clients=Object.values(JSON.parse(localStorage.getItem('dt_clients')||'{}')||{});}catch(err){}
+    const body=document.getElementById('clientsTable');if(!body)return;
+    const rows=clients.filter(x=>(x.name||'').toLowerCase().includes(q)||(x.phone||'').includes(q));
+    body.innerHTML=rows.sort((a,b)=>(b.totalSpent||0)-(a.totalSpent||0)).map(x=>`<tr><td>${x.name||''}</td><td>${x.phone||'—'}</td><td>${x.purchases||0}</td><td>$${Number(x.totalSpent||0).toFixed(2)}</td><td>${x.lastPurchase?new Date(x.lastPurchase).toLocaleString('es-MX'):'—'}</td></tr>`).join('')||'<tr><td colspan="5">No se encontraron clientes.</td></tr>';
+  });
 })();
 </script>
 </body>
