@@ -610,22 +610,61 @@ function renderCart(){
 }
 function openCart(){const modal=document.getElementById('cartModal');if(!modal)return;updateCart();modal.classList.add('show');document.body.style.overflow='hidden'}
 function closeCart(){const modal=document.getElementById('cartModal');if(!modal)return;modal.classList.remove('show');document.body.style.overflow=''}
-function registerOrder(){
- const name=document.getElementById('customerName').value.trim()||'Cliente';
- const phone=document.getElementById('customerPhone').value.trim();
- const dc=deliveryCost(), grand=total()+dc, now=new Date();
- const order={id:'DT-'+Date.now(),date:now.toISOString(),name,phone,delivery:dc?'Envío a domicilio':'Sin envío seleccionado',deliveryCost:dc,total:grand,items:cart.map(x=>({name:x.name,flavor:x.flavor,qty:x.qty,price:x.price}))};
- const sales=getSales();sales.push(order);saveSales(sales);
- // V12: no se crea ni conserva una base de clientes; el pedido se usa solo para el reporte del día.
- return order;
+async function registerOrder(){
+  const name=document.getElementById('customerName').value.trim()||'Cliente';
+  const phone=document.getElementById('customerPhone').value.trim();
+  const notes=document.getElementById('notes').value.trim();
+  const dc=deliveryCost();
+  if(!cart.length)throw new Error('El carrito está vacío.');
+  if(!phone)throw new Error('Por favor escribe tu teléfono.');
+  if(!window.DolceSupabase)throw new Error('La conexión con Supabase todavía no está disponible.');
+
+  const names=[...new Set(cart.map(x=>String(x.name).trim()))];
+  const {data:products,error:productsError}=await window.DolceSupabase
+    .from('products').select('id,name,available').in('name',names);
+  if(productsError)throw new Error('No se pudo consultar el catálogo de productos.');
+
+  const map=new Map((products||[]).map(p=>[String(p.name).trim().toLowerCase(),p]));
+  const items=cart.map(x=>{
+    const product=map.get(String(x.name).trim().toLowerCase());
+    if(!product)throw new Error(`No se encontró el producto: ${x.name}`);
+    if(product.available===false)throw new Error(`El producto "${x.name}" ya no está disponible.`);
+    return {product_id:product.id,product_name:x.name,option_name:x.flavor||null,quantity:Number(x.qty)||1,unit_price:Number(x.price)||0};
+  });
+
+  const {data:orderId,error:orderError}=await window.DolceSupabase.rpc('create_customer_order',{
+    p_customer_name:name,p_customer_phone:phone,p_payment_method:'pendiente',p_note:notes||null,p_items:items
+  });
+  if(orderError){console.error('Error creando pedido en Supabase:',orderError);throw new Error(orderError.message||'No se pudo registrar el pedido.');}
+  if(!orderId)throw new Error('Supabase no devolvió el número del pedido.');
+
+  const now=new Date();
+  const order={id:String(orderId),date:now.toISOString(),name,phone,delivery:dc?'Envío a domicilio':'Sin envío seleccionado',deliveryCost:dc,total:total()+dc,items:cart.map(x=>({name:x.name,flavor:x.flavor,qty:x.qty,price:x.price}))};
+  const sales=getSales();sales.push(order);saveSales(sales);
+  return order;
 }
 function sendWhatsApp(){
- if(!cart.length){alert('Agrega al menos un producto a tu pedido.');return}
- if(!ordersOpen()){alert('Los pedidos están cerrados en este momento.');return}
- const name=document.getElementById('customerName').value.trim()||'Cliente',phone=document.getElementById('customerPhone').value.trim(),notes=document.getElementById('notes').value.trim(),dc=deliveryCost();
- const lines=cart.map(x=>`• ${x.qty} x ${x.name}${x.flavor?' ('+x.flavor+')':''} — ${money(x.price*x.qty)}`).join('\n');
- let msg=`Hola DolceTentazione 💗\n\nQuiero hacer este pedido:\n${lines}\n\nSubtotal: ${money(total())}\nEntrega: ${dc?'Envío a domicilio +$25':'No seleccionado'}\nTotal: ${money(total()+dc)}\nNombre: ${name}`;
- registerOrder();window.open('https://wa.me/525532699350?text='+encodeURIComponent(msg),'_blank');closeCart();updateAdmin();
+  if(!cart.length){alert('Agrega al menos un producto a tu pedido.');return}
+  if(!ordersOpen()){alert('Los pedidos están cerrados en este momento.');return}
+  const name=document.getElementById('customerName').value.trim()||'Cliente';
+  const phone=document.getElementById('customerPhone').value.trim();
+  const notes=document.getElementById('notes').value.trim();
+  const dc=deliveryCost();
+  if(!phone){alert('Por favor escribe tu teléfono.');document.getElementById('customerPhone').focus();return}
+  const btn=document.querySelector('#cartModal button[data-action="whatsapp"]');
+  if(btn){btn.disabled=true;btn.dataset.originalText=btn.innerHTML;btn.innerHTML='Registrando pedido…'}
+  registerOrder().then(order=>{
+    const lines=cart.map(x=>`• ${x.qty} x ${x.name}${x.flavor?' ('+x.flavor+')':''} — ${money(x.price*x.qty)}`).join('\n');
+    let msg=`Hola DolceTentazione 💗\n\nQuiero hacer este pedido:\n${lines}\n\nPedido: ${order.id}\nSubtotal: ${money(total())}\nEntrega: ${dc?'Envío a domicilio +$25':'No seleccionado'}\nTotal: ${money(total()+dc)}\nNombre: ${name}\nTeléfono: ${phone}`;
+    if(notes)msg+=`\nNotas: ${notes}`;
+    window.open('https://wa.me/525532699350?text='+encodeURIComponent(msg),'_blank');
+    closeCart();updateAdmin();
+  }).catch(error=>{
+    console.error('No se pudo registrar el pedido:',error);
+    alert('No pudimos registrar tu pedido en este momento.\n\nPor favor intenta nuevamente. Tu pedido NO fue enviado por WhatsApp.');
+  }).finally(()=>{
+    if(btn){btn.disabled=false;btn.innerHTML=btn.dataset.originalText||'🟢 Enviar pedido por WhatsApp'}
+  });
 }
 function updateOpenState(){
  const open=ordersOpen();document.getElementById('closedBanner')?.classList.toggle('show',!open);
