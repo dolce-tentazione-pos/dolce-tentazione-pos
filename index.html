@@ -625,7 +625,7 @@ async function sendWhatsApp(){
  const name=document.getElementById('customerName').value.trim()||'Cliente',phone=document.getElementById('customerPhone').value.trim(),notes=document.getElementById('notes').value.trim(),dc=deliveryCost();
  const lines=cart.map(x=>`• ${x.qty} x ${x.name}${x.flavor?' ('+x.flavor+')':''} — ${money(x.price*x.qty)}`).join('\n');
  const msg=`Hola DolceTentazione 💗\n\nQuiero hacer este pedido:\n${lines}\n\nSubtotal: ${money(total())}\nEntrega: ${dc?'Envío a domicilio +$25':'No seleccionado'}\nTotal: ${money(total()+dc)}\nNombre: ${name}${phone?'\nTeléfono: '+phone:''}${notes?'\nEspecificaciones: '+notes:''}`;
- const items=cart.map(x=>({product_id:x.id,product_name:x.name,option_name:x.flavor||'',quantity:x.qty,unit_price:x.price}));
+ const items=cart.map(x=>({product_id:Number(String(x.id).split('|')[0]),product_name:x.name,option_name:x.flavor||'',quantity:Number(x.qty)||1,unit_price:Number(x.price)||0}));
  try{
    if(window.DolceSupabaseCreateOrder) await window.DolceSupabaseCreateOrder(name,phone,dc?'domicilio':'sin_envio',notes,items);
    registerOrder();window.open('https://wa.me/525532699350?text='+encodeURIComponent(msg),'_blank');closeCart();updateAdmin();
