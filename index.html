@@ -1475,7 +1475,28 @@ if(b)b.innerHTML='<b>URL:</b> '+SUPABASE_URL+'<br><b>Clave:</b> '+masked+'<br><b
 async function cloudLogin(){const email=document.getElementById('dtV11Email')?.value.trim(),password=document.getElementById('dtV11Password')?.value,msg=document.getElementById('dtV11AuthMsg');if(!email||!password){if(msg)msg.textContent='Escribe correo y contraseña.';return}if(!sb){if(msg)msg.textContent='Supabase no está disponible.';return}if(msg)msg.textContent='Conectando…';const r=await sb.auth.signInWithPassword({email,password});if(r.error){if(msg)msg.textContent='❌ '+r.error.message+' · Abre 🔎 Diagnóstico para comprobar API/REST.';runDiagnostics();return}auth=true;sessionStorage.setItem('dt_admin_auth','ok');if(msg)msg.textContent='✅ Sesión activa.';document.getElementById('pinModal')?.classList.remove('show');document.getElementById('adminModal')?.classList.add('show');updateAdmin();await push();}
 async function cloudLogout(){if(sb)await sb.auth.signOut();auth=false;sessionStorage.removeItem('dt_admin_auth');badge('☁️ Catálogo central conectado')}
 window.DolceCloudLogin=cloudLogin;window.DolceCloudLogout=cloudLogout;window.DolceCloudPull=pull;window.DolceCloudPush=push;
-window.DolceSupabaseCreateOrder=async function(name,phone,delivery,items){if(!sb)throw new Error('Supabase no está disponible');const payload=items.map(x=>({product_id:x.product_id??x.id,product_name:x.product_name??x.name,option_name:x.option_name??x.flavor??'',quantity:Number(x.quantity??x.qty??1),unit_price:Number(x.unit_price??x.price??0)}));const r=await sb.rpc('create_customer_order',{p_customer_name:name,p_customer_phone:phone||'',p_delivery_type:delivery,p_items:payload});if(r.error)throw r.error;return r.data};
+window.DolceSupabaseCreateOrder=async function(name,phone,delivery,items){
+  if(!sb)throw new Error('Supabase no está disponible');
+  const payload=items.map(x=>({product_id:x.product_id??x.id,product_name:x.product_name??x.name,option_name:x.option_name??x.flavor??'',quantity:Number(x.quantity??x.qty??1),unit_price:Number(x.unit_price??x.price??0)}));
+  const candidates=[
+    {p_customer_name:name,p_customer_phone:phone||'',p_delivery_type:delivery,p_items:payload},
+    {customer_name:name,customer_phone:phone||'',delivery_type:delivery,items:payload},
+    {name:name,phone:phone||'',delivery:delivery,items:payload},
+    {p_name:name,p_phone:phone||'',p_delivery:delivery,p_items:payload},
+    {customer_name:name,phone:phone||'',delivery_type:delivery,items:payload},
+    {p_name:name,p_phone:phone||'',p_delivery_type:delivery,p_items:payload}
+  ];
+  let last=null;
+  for(const args of candidates){
+    const r=await sb.rpc('create_customer_order',args);
+    if(!r.error)return r.data;
+    last=r.error;
+    const msg=String(r.error.message||'');
+    const missing=(r.error.code==='PGRST202'||/Could not find the function/i.test(msg)||/schema cache/i.test(msg));
+    if(!missing)throw r.error;
+  }
+  throw last||new Error('No se encontró la función de pedidos en Supabase.');
+};
 function buildCategoryImageEditor(){try{seedImages()}catch(e){}}
 init();
 })();
