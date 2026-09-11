@@ -238,17 +238,6 @@ body.edit-mode .edit-admin-hint{display:block}
 #dtEditorWindow .dt-category-chip{display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid #e0cbd4;border-radius:999px;background:#fff;font-weight:700;color:#633d50}
 #dtEditorWindow .dt-category-chip button{border:0;background:#fff0f3;color:#9a3f58;border-radius:50%;width:28px;height:28px;font-weight:900}
 #dtEditorWindow .dt-category-note{font-size:.86rem;color:#75676d;margin:-7px 0 12px}
-#dtEditorWindow .dt-cover-manager{margin:10px 0 18px;padding:14px;border:1px solid #ead9df;border-radius:14px;background:#fffafc}
-#dtEditorWindow .dt-cover-title{font-size:1rem;font-weight:800;color:#45353b;margin-bottom:4px}
-#dtEditorWindow .dt-cover-note{font-size:.82rem;color:#75676d;margin-bottom:12px}
-#dtEditorWindow .dt-cover-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
-#dtEditorWindow .dt-cover-card{border:1px solid #ead9df;border-radius:12px;padding:10px;background:#fff}
-#dtEditorWindow .dt-cover-card img{width:100%;height:110px;object-fit:cover;border-radius:10px;background:#f5edf0;display:block;margin-bottom:8px}
-#dtEditorWindow .dt-cover-card .dt-cover-label{font-weight:800;color:#633d50;margin-bottom:7px}
-#dtEditorWindow .dt-cover-card input[type=text]{width:100%;box-sizing:border-box;margin-bottom:7px}
-#dtEditorWindow .dt-cover-card .dt-file{display:block;margin:0 0 7px}
-#dtEditorWindow .dt-cover-card .dt-cover-save{width:100%}
-
 
 .categories .cat[data-section]:not([data-section="reposteria"]):not([data-section="calientes"]):not([data-section="frappes"]){outline:1px solid rgba(154,63,88,.12)}
 </style>
@@ -464,8 +453,8 @@ body.edit-mode .edit-admin-hint{display:block}
     <div class="dt-v11-login">
       <h4>☁️ Administración desde cualquier dispositivo</h4>
       <div class="dt-v11-small">Inicia sesión con tu cuenta de administrador.</div>
-      <input id="dtV11Email" type="email" placeholder="Correo de administrador" autocomplete="username">
-      <input id="dtV11Password" type="password" placeholder="Contraseña" autocomplete="current-password">
+      <input id="dtV11Email" type="email" placeholder="Correo de administrador" autocomplete="off" autocapitalize="none" spellcheck="false">
+      <input id="dtV11Password" type="password" placeholder="Contraseña" autocomplete="new-password">
       <button type="button" class="admin-btn" id="dtV11Login">☁️ Entrar y sincronizar</button>
       <div id="dtV11AuthMsg" class="dt-v11-small"></div>
     </div>
@@ -646,19 +635,39 @@ function updateOpenState(){
  const open=ordersOpen();document.getElementById('closedBanner')?.classList.toggle('show',!open);
  const st=document.getElementById('statusText');if(st)st.textContent=open?'Pedidos abiertos.':'Pedidos cerrados.';
 }
-function openAdmin(){
+async function openAdmin(){
   const pin=document.getElementById('pinModal');
   const adm=document.getElementById('adminModal');
-  if(sessionStorage.getItem('dt_admin_auth')==='ok'){adm?.classList.add('show');updateAdmin();return}
+  let active=false;
+  try{
+    active=!!(window.DolceSupabase && (await window.DolceSupabase.auth.getSession()).data?.session);
+  }catch(e){}
+  if(active && sessionStorage.getItem('dt_admin_auth')==='ok'){
+    adm?.classList.add('show');
+    updateAdmin();
+    return;
+  }
+  sessionStorage.removeItem('dt_admin_auth');
   pin?.classList.add('show');
-  setTimeout(()=>document.getElementById('dtV11Email')?.focus(),50);
+  const email=document.getElementById('dtV11Email'),password=document.getElementById('dtV11Password');
+  if(email)email.value='';
+  if(password)password.value='';
+  setTimeout(()=>email?.focus(),50);
 }
 function submitAdminPin(){
   if(window.DolceCloudLogin){window.DolceCloudLogin();return;}
   alert('La conexión administrativa aún está cargando. Intenta nuevamente.');
 }
 function closePin(){document.getElementById('pinModal')?.classList.remove('show')}
-function closeAdmin(){document.getElementById('adminModal')?.classList.remove('show');sessionStorage.removeItem('dt_admin_auth');}
+async function closeAdmin(){
+  document.getElementById('adminModal')?.classList.remove('show');
+  document.getElementById('pinModal')?.classList.remove('show');
+  sessionStorage.removeItem('dt_admin_auth');
+  const email=document.getElementById('dtV11Email'),password=document.getElementById('dtV11Password');
+  if(email)email.value='';
+  if(password)password.value='';
+  try{if(window.DolceCloudLogout)await window.DolceCloudLogout();}catch(e){console.warn('No se pudo cerrar la sesión Supabase:',e)}
+}
 
 const MENU_KEY='dt_menu_catalog_v4';
 let editMode=false;
@@ -1026,7 +1035,6 @@ document.addEventListener('DOMContentLoaded',function(){
     <div id="dtEditorCategories" class="dt-cats"></div>
     <div id="dtEditorCategoryManagement" class="dt-category-management"></div>
     <div class="dt-category-note">Las tres categorías originales del POS no se eliminan. Las nuevas categorías sí pueden eliminarse.</div>
-    <div id="dtCoverManager" class="dt-cover-manager"></div>
     <div id="dtEditorContent"></div>
   </div>
 </div>
@@ -1096,41 +1104,6 @@ document.addEventListener('DOMContentLoaded',function(){
     return changed;
   }
   const ORIGINAL_CATS=new Set(['reposteria','calientes','frappes']);
-  const CAT_IMG_KEY='dt_category_images_v1';
-
-  function getCoverImages(){
-    try{return JSON.parse(localStorage.getItem(CAT_IMG_KEY)||'{}')||{};}
-    catch(e){return {};}
-  }
-
-  function saveCoverImages(images){
-    localStorage.setItem(CAT_IMG_KEY,JSON.stringify(images||{}));
-    try{window.dtRefreshPOS?.();}catch(e){}
-    try{window.DolcePOSCatalog?.apply?.();}catch(e){}
-    try{window.dtRefreshPOS?.();}catch(e){}
-  }
-
-  function renderCoverManager(){
-    const host=document.getElementById('dtCoverManager');
-    if(!host)return;
-    const images=getCoverImages();
-    const ids=sections();
-    host.innerHTML=`<div class="dt-cover-title">🖼️ Fotos de portada</div>
-      <div class="dt-cover-note">Aquí puedes cambiar la imagen que aparece en cada portada de categoría. Selecciona una foto de tu galería o pega una URL y después pulsa “Guardar portada”. Los cambios se sincronizan con el catálogo central.</div>
-      <div class="dt-cover-grid">${ids.map(id=>{
-        const src=images[id]||'';
-        return `<div class="dt-cover-card" data-cover-card="${esc(id)}">
-          <div class="dt-cover-label">${esc(labels[id]||id)}</div>
-          <img data-cover-preview src="${esc(src)}" alt="Portada ${esc(labels[id]||id)}" onerror="this.style.visibility='hidden'">
-          <input type="text" data-cover-url value="${esc(src)}" placeholder="URL de imagen (opcional)">
-          <label class="dt-file">📷 Seleccionar foto de mi galería
-            <input type="file" data-cover-file accept="image/*">
-          </label>
-          <button class="dt-btn dt-primary dt-cover-save" type="button" data-cover-save="${esc(id)}">💾 Guardar portada</button>
-        </div>`;
-      }).join('')}</div>`;
-  }
-
   function renderCategoryManagement(){
     const el=document.getElementById('dtEditorCategoryManagement');
     if(!el)return;
@@ -1181,7 +1154,6 @@ document.addEventListener('DOMContentLoaded',function(){
       return `<button type="button" class="dt-cat ${id===selected?'active':''}" data-cat="${esc(id)}">${esc(labels[id]||id)} · ${count}</button>`;
     }).join('');
     renderCategoryManagement();
-    renderCoverManager();
     const items=Object.values(catalog).filter(x=>x.section===selected);
     contentEl.innerHTML=`
       <div class="dt-editor-actions">
@@ -1306,52 +1278,7 @@ document.addEventListener('DOMContentLoaded',function(){
     selected=id;render();
     alert('Categoría creada. Ya está disponible en el editor y en el menú real. Ahora puedes agregar productos a este menú.');
   }
-  W.addEventListener('change',async function(e){
-    const file=e.target.closest('[data-cover-file]');
-    if(!file)return;
-    const card=file.closest('[data-cover-card]');
-    const preview=card?.querySelector('[data-cover-preview]');
-    const url=card?.querySelector('[data-cover-url]');
-    const f=file.files&&file.files[0];
-    if(!f)return;
-    try{
-      const data=await compressImage(f,1000,0.78);
-      if(url)url.value=data;
-      if(preview){preview.style.visibility='visible';preview.src=data;}
-    }catch(err){
-      alert('No se pudo cargar la foto de portada.');
-      console.error(err);
-    }
-  });
-
-  W.addEventListener('input',function(e){
-    const url=e.target.closest('[data-cover-url]');
-    if(!url)return;
-    const preview=url.closest('[data-cover-card]')?.querySelector('[data-cover-preview]');
-    if(preview){preview.style.visibility='visible';preview.src=url.value||'';}
-  });
-
   W.addEventListener('click',function(e){
-    const saveCover=e.target.closest('[data-cover-save]');
-    if(saveCover){
-      e.preventDefault();
-      e.stopPropagation();
-      const id=saveCover.dataset.coverSave;
-      const card=saveCover.closest('[data-cover-card]');
-      const value=(card?.querySelector('[data-cover-url]')?.value||'').trim();
-      if(!value){
-        alert('Selecciona una foto o pega una URL antes de guardar.');
-        return;
-      }
-      const images=getCoverImages();
-      images[id]=value;
-      saveCoverImages(images);
-      const preview=card?.querySelector('[data-cover-preview]');
-      if(preview){preview.style.visibility='visible';preview.src=value;}
-      alert('✅ Foto de portada guardada.');
-      return;
-    }
-
     const delCat=e.target.closest('[data-delete-category]');
     if(delCat){e.preventDefault();e.stopPropagation();deleteCategory(delCat.dataset.deleteCategory);return;}
     const cat=e.target.closest('[data-cat]');if(cat){selected=cat.dataset.cat;render();return;}
@@ -1426,25 +1353,6 @@ document.addEventListener('DOMContentLoaded',function(){
         }
         const h=card.querySelector('h3');
         if(h)h.textContent=label;
-        try{
-          const images=JSON.parse(localStorage.getItem('dt_category_images_v1')||'{}')||{};
-          const src=images[safe]||'';
-          let cover=card.querySelector('img[data-category-cover]');
-          if(src){
-            if(!cover){
-              cover=document.createElement('img');
-              cover.setAttribute('data-category-cover','1');
-              cover.alt='';
-              cover.loading='lazy';
-              card.insertBefore(cover,card.firstChild);
-            }
-            cover.src=src;
-            cover.style.display='';
-            cover.style.visibility='visible';
-          }else if(cover){
-            cover.remove();
-          }
-        }catch(e){}
         card.style.display='';
       }
       return sec;
@@ -1552,8 +1460,8 @@ const MENU_KEY='dt_menu_catalog_v4',CAT_KEY='dt_menu_categories_v2',CAT_IMG_KEY=
 const CDN='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 let sb=null,auth=false,busy=false,timer=null;
 const safe=(k,d)=>{try{return JSON.parse(localStorage.getItem(k)||'null')??d}catch(e){return d}};
-function badge(text){let b=document.getElementById('dtSyncBadge');if(!b){b=document.createElement('div');b.id='dtSyncBadge';document.body.appendChild(b)}b.textContent=text;b.classList.add('show')}
-function css(){if(document.getElementById('dt-v12-style'))return;const st=document.createElement('style');st.id='dt-v12-style';st.textContent='#dtSyncBadge{position:fixed;left:10px;bottom:78px;z-index:99999;background:#fff;border:1px solid #ead9df;border-radius:12px;padding:7px 10px;font-size:11px;color:#6f3653;box-shadow:0 3px 12px #0001}.dt-v11-small{font-size:11px;color:#756b70;margin-top:4px}';document.head.appendChild(st)}
+function badge(text){}
+function css(){if(document.getElementById('dt-v12-style'))return;const st=document.createElement('style');st.id='dt-v12-style';st.textContent='.dt-v11-small{font-size:11px;color:#756b70;margin-top:4px}';document.head.appendChild(st)}
 function load(){return new Promise((ok,no)=>{if(window.supabase?.createClient)return ok();const x=document.createElement('script');x.src=CDN;x.onload=ok;x.onerror=no;document.head.appendChild(x)})}
 async function init(){css();badge('☁️ Conectando catálogo…');try{await load();sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});window.DolceSupabase=sb;const ses=await sb.auth.getSession();auth=!!ses.data?.session;sb.auth.onAuthStateChange((_e,s)=>{auth=!!s;badge(auth?'☁️ Administración conectada':'☁️ Catálogo central conectado')});await pull();buildLogin();buildCategoryImageEditor();badge(auth?'☁️ Catálogo central · admin conectado':'☁️ Catálogo central conectado')}catch(e){console.error('Supabase init:',e);badge('❌ Supabase: '+errText(e))}}
 function errText(e){return e?.message||e?.error_description||String(e||'Error desconocido')}
@@ -1578,56 +1486,41 @@ async function pull(){if(!sb||busy)return false;busy=true;badge('☁️ Cargando
   window.DolcePOSCatalog?.apply?.();window.dtRefreshPOS?.();applyImages();badge('☁️ Catálogo central actualizado');return true;
 }catch(e){console.error('Catálogo Supabase:',e);badge('❌ Error catálogo: '+errText(e));return false}finally{busy=false}}
 function getImages(){return safe(CAT_IMG_KEY,{})}
-function applyImages(){const im=getImages();document.querySelectorAll('.categories .cat[data-section]').forEach(card=>{const src=im[card.dataset.section];if(!src)return;let img=card.querySelector('img');if(!img){img=document.createElement('img');img.alt='';card.insertBefore(img,card.firstChild)}img.src=src})}
-function seedImages(){const im=getImages();document.querySelectorAll('.categories .cat[data-section]').forEach(c=>{const i=c.querySelector('img');if(i?.src&&!im[c.dataset.section])im[c.dataset.section]=i.src});localStorage.setItem(CAT_IMG_KEY,JSON.stringify(im))}
+function applyImages(){
+  const im=getImages();
+  document.querySelectorAll('.categories .cat[data-section]').forEach(card=>{
+    const src=im[card.dataset.section];
+    const img=card.querySelector('img[data-category-cover]')||card.querySelector(':scope > img');
+    if(!img)return;
+    img.setAttribute('data-category-cover','1');
+    if(src)img.src=src;
+  });
+}
+function seedImages(){
+  const im=getImages();
+  document.querySelectorAll('.categories .cat[data-section]').forEach(c=>{
+    const i=c.querySelector('img[data-category-cover]')||c.querySelector(':scope > img');
+    if(i?.src&&!im[c.dataset.section])im[c.dataset.section]=i.src;
+    if(i)i.setAttribute('data-category-cover','1');
+  });
+  localStorage.setItem(CAT_IMG_KEY,JSON.stringify(im));
+}
 async function push(){if(!sb||!auth||busy)return false;busy=true;badge('☁️ Guardando catálogo…');try{const labels=safe(CAT_KEY,{}),images=safe(CAT_IMG_KEY,{}),catalog=safe(MENU_KEY,{}),now=new Date().toISOString();const cats=Object.keys(labels).map((id,i)=>({id,label:labels[id],image_url:images[id]||null,sort_order:i,active:true,updated_at:now}));const prods=Object.values(catalog).map((x,i)=>({id:x.id,section:x.section||'',name:x.name||'',price:Number(x.price||0),img:x.img||'',description:x.desc||'',flavors:Array.isArray(x.flavors)?x.flavors:[],active:x.active!==false,sort_order:i,updated_at:now}));if(cats.length){const r=await sb.from('pos_categories').upsert(cats,{onConflict:'id'});if(r.error)throw new Error('pos_categories: '+r.error.message)}if(prods.length){const r=await sb.from('pos_products').upsert(prods,{onConflict:'id'});if(r.error)throw new Error('pos_products: '+r.error.message)}badge('☁️ Cambios guardados en la nube');return true}catch(e){console.error('Guardar catálogo:',e);badge('❌ No se pudo guardar: '+errText(e));return false}finally{busy=false}}
 function schedule(){if(!auth)return;clearTimeout(timer);timer=setTimeout(()=>push(),700)}
 const nativeSet=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){const r=nativeSet.call(this,k,v);if(this===localStorage&&(k===MENU_KEY||k===CAT_KEY||k===CAT_IMG_KEY))schedule();return r};
-function buildLogin(){const b=document.getElementById('dtV11Login');if(b&&!b.dataset.bound){b.dataset.bound='1';b.addEventListener('click',cloudLogin)};buildDiagnostics()}
-function buildDiagnostics(){if(document.getElementById('dtSupabaseDiagV4'))return;const d=document.createElement('div');d.id='dtSupabaseDiagV4';d.style.cssText='position:fixed;right:10px;bottom:10px;z-index:100000;background:#fff;border:1px solid #ead9df;border-radius:14px;padding:10px 12px;width:min(92vw,360px);font:12px Arial,sans-serif;color:#35272c;box-shadow:0 5px 25px #0002;display:none';d.innerHTML='<b>Diagnóstico Supabase V4</b><div id="dtDiagBodyV4" style="margin-top:7px;line-height:1.45"></div><button id="dtDiagRunV4" style="margin-top:8px;border:0;border-radius:9px;padding:7px 10px;background:#d86f92;color:#fff;font-weight:700">Probar conexión</button><button id="dtDiagCloseV4" style="margin-left:6px;border:0;border-radius:9px;padding:7px 10px;background:#eee;color:#35272c">Cerrar</button>';document.body.appendChild(d);document.getElementById('dtDiagRunV4').onclick=runDiagnostics;document.getElementById('dtDiagCloseV4').onclick=()=>d.style.display='none';const q=document.createElement('button');q.id='dtDiagOpenV4';q.textContent='🔎 Diagnóstico';q.style.cssText='position:fixed;right:10px;bottom:55px;z-index:100001;border:0;border-radius:12px;padding:8px 11px;background:#fff;color:#6f3653;border:1px solid #ead9df;box-shadow:0 3px 12px #0001';q.onclick=()=>{d.style.display='block';runDiagnostics()};document.body.appendChild(q)}
-async function runDiagnostics(){const d=document.getElementById('dtSupabaseDiagV4'),b=document.getElementById('dtDiagBodyV4');if(d)d.style.display='block';if(b)b.innerHTML='⏳ Probando…';const masked=SUPABASE_KEY.slice(0,18)+'…'+SUPABASE_KEY.slice(-6);let rest='—',authz='—',client='—',catalog='—';try{
-  client=(window.supabase?.createClient?'OK':'NO');
-  const url=SUPABASE_URL+'/rest/v1/pos_categories?select=id&limit=1&apikey='+encodeURIComponent(SUPABASE_KEY);
-  const res=await fetch(url,{method:'GET',cache:'no-store'});
-  const txt=await res.text();
-  rest=res.status+' '+(res.ok?'OK':'ERROR');
-  if(!res.ok)rest+=' — '+txt.slice(0,180); else catalog='OK';
-  if(sb){const a=await sb.auth.getSession();authz=a.error?('ERROR — '+a.error.message):'OK';}
-}catch(e){rest='EXCEPCIÓN — '+errText(e)}
-if(b)b.innerHTML='<b>URL:</b> '+SUPABASE_URL+'<br><b>Clave:</b> '+masked+'<br><b>Cliente JS:</b> '+client+'<br><b>REST sin headers:</b> '+rest+'<br><b>Auth:</b> '+authz+'<br><b>Catálogo:</b> '+catalog+'<br><br><small>V4 prueba REST por URL; no modifica datos.</small>'}
-
-async function loadRemoteSales(){
-  if(!sb)throw new Error('Supabase no está disponible');
-  const {data:orders,error:ordersError}=await sb.from('orders')
-    .select('id,created_at,customer_name,customer_phone,payment_method,total,subtotal,shipping_fee,status,note')
-    .order('created_at',{ascending:false}).limit(200);
-  if(ordersError)throw ordersError;
-  const list=Array.isArray(orders)?orders:[];
-  if(!list.length)return [];
-  const ids=list.map(o=>o.id);
-  const {data:items,error:itemsError}=await sb.from('order_items')
-    .select('order_id,product_name,option_name,quantity,unit_price')
-    .in('order_id',ids);
-  if(itemsError)throw itemsError;
-  const byOrder={};
-  (items||[]).forEach(i=>{
-    (byOrder[i.order_id]||(byOrder[i.order_id]=[])).push({
-      name:i.product_name||'Producto',flavor:i.option_name||'',qty:Number(i.quantity||0),price:Number(i.unit_price||0)
-    });
-  });
-  const today=new Date();
-  return list.filter(o=>{
-    const d=new Date(o.created_at);
-    return d.toLocaleDateString('es-MX')===today.toLocaleDateString('es-MX');
-  }).map(o=>({
-    id:String(o.id),date:o.created_at,name:o.customer_name||'Cliente',phone:o.customer_phone||'',
-    delivery:Number(o.shipping_fee||0)>0||/Entrega:\s*domicilio/i.test(o.note||'')?'Envío a domicilio':'Sin envío seleccionado',
-    deliveryCost:Number(o.shipping_fee||0),total:Number(o.total||0),items:byOrder[o.id]||[]
-  }));
+function buildLogin(){const b=document.getElementById('dtV11Login');if(b&&!b.dataset.bound){b.dataset.bound='1';b.addEventListener('click',cloudLogin)}}
+function buildDiagnostics(){}
+async function runDiagnostics(){return false;}
+async function cloudLogin(){const email=document.getElementById('dtV11Email')?.value.trim(),password=document.getElementById('dtV11Password')?.value,msg=document.getElementById('dtV11AuthMsg');if(!email||!password){if(msg)msg.textContent='Escribe correo y contraseña.';return}if(!sb){if(msg)msg.textContent='Supabase no está disponible.';return}if(msg)msg.textContent='Conectando…';const r=await sb.auth.signInWithPassword({email,password});if(r.error){if(msg)msg.textContent='❌ '+r.error.message;return}auth=true;sessionStorage.setItem('dt_admin_auth','ok');if(msg)msg.textContent='✅ Sesión activa.';document.getElementById('pinModal')?.classList.remove('show');document.getElementById('adminModal')?.classList.add('show');updateAdmin();await push();}
+async function cloudLogout(){
+  try{if(sb)await sb.auth.signOut({scope:'local'});}catch(e){console.warn('Supabase signOut:',e)}
+  auth=false;
+  sessionStorage.removeItem('dt_admin_auth');
+  const email=document.getElementById('dtV11Email'),password=document.getElementById('dtV11Password');
+  if(email)email.value='';
+  if(password)password.value='';
+  badge('☁️ Catálogo central conectado');
 }
-window.DolceCloudLoadSales=loadRemoteSales;
-async function cloudLogin(){const email=document.getElementById('dtV11Email')?.value.trim(),password=document.getElementById('dtV11Password')?.value,msg=document.getElementById('dtV11AuthMsg');if(!email||!password){if(msg)msg.textContent='Escribe correo y contraseña.';return}if(!sb){if(msg)msg.textContent='Supabase no está disponible.';return}if(msg)msg.textContent='Conectando…';const r=await sb.auth.signInWithPassword({email,password});if(r.error){if(msg)msg.textContent='❌ '+r.error.message+' · Abre 🔎 Diagnóstico para comprobar API/REST.';runDiagnostics();return}auth=true;sessionStorage.setItem('dt_admin_auth','ok');if(msg)msg.textContent='✅ Sesión activa.';document.getElementById('pinModal')?.classList.remove('show');document.getElementById('adminModal')?.classList.add('show');updateAdmin();await push();}
-async function cloudLogout(){if(sb)await sb.auth.signOut();auth=false;sessionStorage.removeItem('dt_admin_auth');badge('☁️ Catálogo central conectado')}
 window.DolceCloudLogin=cloudLogin;window.DolceCloudLogout=cloudLogout;window.DolceCloudPull=pull;window.DolceCloudPush=push;
 window.DolceSupabaseCreateOrder=async function(name,phone,delivery,notes,items){
   if(!sb)throw new Error('Supabase no está disponible');
